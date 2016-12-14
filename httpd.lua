@@ -2,7 +2,7 @@
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
--- http    stream  tcp     nowait  root    /usr/local/sbin/httpd      httpd
+-- http    stream  tcp     nowait  www    /usr/local/sbin/httpd      httpd
 
 --
 -- Copyright (c) 2016 Ryan Moeller <ryan@freqlabs.com>
@@ -177,6 +177,7 @@ function write_http_response(server, response)
 end
 
 
+--[[
 -- Log some debugging info
 local function debug_server(server)
    local log = server.log
@@ -208,6 +209,7 @@ local function debug_server(server)
       log:write("\n")
    end
 end
+]]--
 
 
 local function handle_request(server)
