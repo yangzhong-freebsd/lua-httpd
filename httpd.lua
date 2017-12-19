@@ -96,7 +96,7 @@ local function parse_request_query(query)
       end
    end
 
-   string.gsub(query, "([^;]+)", parse)
+   string.gsub(query, "([^;&]+)", parse)
 
    return params
 end
