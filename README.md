@@ -8,7 +8,8 @@ httpd.lua - simple HTTP server library with zero dependencies (except inetd)
 
 Install httpd.lua in your package.path.
 
-/usr/local/bin/httpd
+Write an executable server script, for example:
+`/usr/local/bin/httpd`
 ```lua
 #!/usr/bin/env lua
 
@@ -20,14 +21,19 @@ end)
 server:run(true)
 ```
 
-/etc/inetd.conf
+Configure inetd:
+`/etc/inetd.conf`
 ```conf
 http    stream  tcp     nowait  www    /usr/local/bin/httpd      httpd
+```
+
+Prepare the log file:
+```sh
+touch /var/log/httpd.log
+chown www /var/log/httpd.log
 ```
 
 ## Description
 
 I didn't feel like cross-compiling a bunch of stuff for a MIPS router I
 have.  It has Lua interpreter on it, and I like Lua, so I wrote this.
-
-More details to come.
