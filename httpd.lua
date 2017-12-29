@@ -188,7 +188,7 @@ local function debug_server(server)
    log:write("#handlers = " .. tostring(#handlers) .. "\n")
    log:write(request.method .. "\n")
    if request.path ~= nil then
-      log:write(request.path .. "\n")
+      log:write(request.path, "\n")
    end
    for k, v in pairs(request.headers) do
       log:write("> " .. k .. ": ")
@@ -378,6 +378,7 @@ function M.create_server(logfile)
          TRACE = {}
       }
    }
+   server.log:setvbuf("no")
 
    function server:add_route(method, pattern, handler)
       table.insert(self.handlers[method], { pattern, handler })
@@ -386,9 +387,9 @@ function M.create_server(logfile)
    function server:run(verbose)
       for line in self.input:lines() do
          if verbose then
-            self.log:write(line .. "\n")
+            self.log:write(line, "\n")
          end
-         self.state = handle_request_line(server, line)
+         self.state = handle_request_line(self, line)
       end
    end
 
