@@ -371,6 +371,7 @@ function M.create_server(logfile)
          GET = {},
          HEAD = {},
          POST = {},
+         PATCH = {},
          PUT = {},
          DELETE = {},
          CONNECT = {},
