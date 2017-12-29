@@ -1,4 +1,4 @@
-#!/usr/local/bin/lua
+#!/usr/bin/env lua
 --
 -- Minimal web server written in Lua
 --
@@ -49,7 +49,7 @@ function forbidden(request)
 ]] }
 end
 
-local server = httpd.create_server("/var/httpd.log")
+local server = httpd.create_server("/var/log/httpd.log")
 server:add_route("GET", "^/$", hello_world)
 server:add_route("GET", ".*", forbidden)
 server:run(true)
