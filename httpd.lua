@@ -37,8 +37,7 @@ M.VERSION = '0.0.1'
 -- we're looking for a start line next.
 local ServerState = {
    START_LINE = 0,
-   HEADER_FIELD = 1,
-   MESSAGE_BODY = 2
+   HEADER_FIELD = 1
 }
 
 
@@ -87,12 +86,9 @@ local function parse_request_query(query)
       if encoded_key ~= nil then
          local key = decode(encoded_key)
          local value = decode(encoded_value)
-
-         if params[key] == nil then
-            params[key] = {}
-         end
-
-         table.insert(params[key], value)
+         local param = params[key] or {}
+         table.insert(param, value)
+         params[key] = param
       end
    end
 
@@ -157,7 +153,11 @@ function write_http_response(server, response)
    local reason = response.reason
    local headers = response.headers or {}
    local cookies = response.cookies or {}
-   local body =  response.body or ""
+   local body = response.body
+
+   if body then
+      headers['Content-Length'] = #body
+   end
 
    local statusline = string.format("HTTP/1.1 %03d %s\r\n", status, reason)
    output:write(statusline)
@@ -173,7 +173,10 @@ function write_http_response(server, response)
    end
 
    output:write("\r\n")
-   output:write(body)
+
+   if body then
+      output:write(body)
+   end
 end
 
 
@@ -242,57 +245,78 @@ local function method_expects_body(method)
 end
 
 
-local function handle_blank_line(server)
-   local method = server.request.method
+local function handle_message_body(server, content_length)
+   local body = ""
+   repeat
+      local buf = server.input:read(content_length - #body)
+      if buf then
+         body = body .. buf
+      else
+         server.log:write("body shorter than specified content length\n")
+         break
+      end
+   until #body == content_length
 
-   if method_expects_body(method) then
-      return ServerState.MESSAGE_BODY
-   else
-      return handle_request(server)
+   if server.verbose then
+      server.log:write("content length = ", content_length, "\n")
+      server.log:write(body, "\n")
    end
+   server.request.body = body
+   handle_request(server)
+end
+
+
+local function handle_blank_line(server)
+   local request = server.request
+   local method = request.method
+   local content_length_header = request.headers['content-length']
+
+   if method_expects_body(method) and content_length_header then
+      local values = content_length_header.list
+      local value = values[#values]
+      local content_length = tonumber(value)
+      if content_length then
+         return handle_message_body(server, content_length)
+      else
+         server.log:write("invalid content-length\n")
+      end
+   end
+   return handle_request(server)
 end
 
 
 local function set_cookie(server, cookie)
    -- Browsers do not send cookie attributes in requests.
    local name, value = string.match(cookie, "(.+)=(.*)")
-
-   if server.request.cookies[name] == nil then
-      server.request.cookies[name] = {}
-   end
-
-   table.insert(server.request.cookies[name], value)
+   local cookie = server.request.cookies[name] or {}
+   table.insert(cookie, value)
+   server.request.cookies[name] = cookie
 end
 
 
-local function parse_header_attribs(header)
-   local attribs = {}
-
+local function parse_header_value(header, value)
    local function parse(attrib)
       local key, value = string.match(attrib, "^%s*(.*)=(.*)%s*$")
-      if key ~= nil then
-         if attribs[key] == nil then
-            attribs[key] = {}
-         end
-
-         table.insert(attribs[key], value)
+      if key then
+         local attrval = header.dict[key] or {}
+         table.insert(attrval, value)
+         header.dict[key] = attrval
       else
-         if attribs.value == nil then
-            attribs.value = {}
-         end
-
-         table.insert(attribs.value, attrib)
+         table.insert(header.list, attrib)
       end
    end
 
-   string.gsub(header, "([^;]+)", parse)
+   string.gsub(value, "([^;]+)", parse)
 
-   return attribs
+   return header
 end
 
 
-local function set_header(server, name, value)
-   server.request.headers[name] = parse_header_attribs(value)
+local function update_header(server, name, value)
+   local headers = server.request.headers
+   -- Header may be repeated to form a list.
+   local header = headers[name] or { dict={}, list={} }
+   headers[name] = parse_header_value(header, value)
 end
 
 
@@ -308,31 +332,20 @@ local function handle_header_field(server, line)
    else
       local name, value = parse_header_field(line)
 
-      if name == nil then
-         server.log:write("Invalid header format!\n")
-      elseif name == "Cookie" then
-         set_cookie(server, value)
+      if name then
+         -- Header field names are case-insensitive.
+         local lname = string.lower(name)
+         if lname == "cookie" then
+            set_cookie(server, value)
+         else
+            update_header(server, lname, value)
+         end
       else
-         set_header(server, name, value)
+         server.log:write("Ignoring invalid header: ", line, "\n")
       end
 
       -- Look for more headers.
       return ServerState.HEADER_FIELD
-   end
-end
-
-
-local function handle_message_body(server, line)
-   if line == nil then
-      return handle_request(server)
-   else
-      if server.request.body == nil then
-         server.request.body = {}
-      end
-
-      table.insert(server.request.body, line)
-
-      return ServerState.MESSAGE_BODY
    end
 end
 
@@ -345,9 +358,6 @@ local function handle_request_line(server, line)
 
    elseif state == ServerState.HEADER_FIELD then
       return handle_header_field(server, line)
-
-   elseif state == ServerState.MESSAGE_BODY then
-      return handle_message_body(server, line)
 
    else
       return ServerState.START_LINE
@@ -386,6 +396,7 @@ function M.create_server(logfile)
    end
 
    function server:run(verbose)
+      self.verbose = verbose
       for line in self.input:lines() do
          if verbose then
             self.log:write(line, "\n")
