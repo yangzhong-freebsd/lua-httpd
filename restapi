@@ -1,0 +1,221 @@
+#!/usr/pkg/bin/lua5.3
+--
+-- Minimal web server written in Lua
+--
+-- Use with inetd, no other dependencies:
+-- http    stream  tcp     nowait  www    /usr/local/sbin/httpd      httpd
+
+--
+-- Copyright (c) 2016 Ryan Moeller <ryan@freqlabs.com>
+--
+-- Permission to use, copy, modify, and distribute this software for any
+-- purpose with or without fee is hereby granted, provided that the above
+-- copyright notice and this permission notice appear in all copies.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+-- WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+-- MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+-- ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+-- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+-- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+-- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+--
+
+-- Adjust the following paths as needed.
+server_log_path = "/var/log/httpd.log"
+demo_db_path = "/var/db/demo/demo.db"
+
+-- This is one way to set the paths for importing additional packages.
+package.cpath = "/usr/pkg/luarocks/lib/lua/5.3/?.so;" .. package.cpath
+package.path = "/usr/pkg/luarocks/share/lua/5.3/?.lua;" .. package.path
+package.path = "/usr/pkg/luarocks/share/lua/5.3/?/init.lua;" .. package.path
+
+-- Another way would be to set the LUA_PATH and LUA_CPATH environment
+-- variables in a wrapper shell script, such as:
+--[[
+#! /bin/sh
+LUAROCKS="/usr/pkg/luarocks"
+LUA_PATH="$LUAROCKS/share/lua/5.3/?.lua;$LUAROCKS/share/lua/5.3/?/init.lua"
+LUA_CPATH="$LUAROCKS/lib/lua/5.3/?.so"
+export LUA_PATH
+export LUA_CPATH
+/path/to/this/script
+]]
+-- Then the wrapper script can be invoked by inetd instead.
+
+-- luarocks install lua-cjson lsqlite3
+local cjson = require("cjson")
+local sqlite = require("lsqlite3")
+
+-- httpd.lua from this repo should be installed somewhere in package.path
+local httpd = require("httpd")
+
+-- Creating the server early allows us to use the log file in our handlers.
+local server = httpd.create_server(server_log_path)
+
+local db, err, msg = sqlite.open(demo_db_path)
+if not db then
+  server.log:write("Error opening database: ", msg, "\n")
+  os.exit(1)
+end
+if db:exec(
+     "CREATE TABLE IF NOT EXISTS numbers(num INTEGER PRIMARY KEY)"
+       ) ~= sqlite.OK then
+  server.log:write("Error initializing database: ", db:errmsg(), "\n")
+  os.exit(1)
+end
+
+function hello_world(request)
+  return {
+    status=200, reason="ok",
+    headers={ ["Content-Type"]="application/json" },
+    body=cjson.encode({ message="Hello, world!" })
+  }
+end
+
+function numbers_list(request)
+  local numbers = {}
+  for num in db:urows("SELECT * FROM numbers") do
+    table.insert(numbers, num)
+  end
+  return {
+    status=200, reason="ok",
+    headers={ ["Content-Type"]="application/json" },
+    body=cjson.encode(numbers)
+  }
+end
+
+local NO_CONTENT = {
+  status=204, reason="no content"
+}
+
+local BAD_REQUEST = {
+  status=400, reason="bad request",
+  headers={ ["Content-Type"]="application/json" },
+  body=cjson.encode("bad request")
+}
+
+local NOT_FOUND = {
+  status=404, reason="not found",
+  headers={ ["Content-Type"]="application/json" },
+  body=cjson.encode({ error="resource does not exist" })
+}
+
+local CONFLICT = {
+  status=409, reason="conflict",
+  headers={ ["Content-Type"]="application/json" },
+  body=cjson.encode({ error="resource already exists" })
+}
+
+local INTERNAL_SERVER_ERROR = {
+  status=503, reason="error",
+  headers={ ["Content-Type"]="application/json" },
+  body=cjson.encode({ error="internal server error" })
+}
+
+function numbers_add(request)
+  local stmt = db:prepare("INSERT INTO numbers(num) VALUES (?)")
+  local num = tonumber(request.body)
+  if not num then
+    return BAD_REQUEST
+  end
+  if stmt:bind_values(num) ~= sqlite.OK then
+    server.log:write("Error binding parameter: ", db:errmsg(), "\n")
+    return INTERNAL_SERVER_ERROR
+  end
+  local res = stmt:step()
+  if res == sqlite.DONE then
+    local location = "/numbers/" .. num
+    return {
+      status=201, reason="created",
+      headers={ ["Location"]=location }
+    }
+  elseif res == sqlite.CONSTRAINT and string.find(db:errmsg(), "UNIQUE") then
+    return CONFLICT
+  else
+    server.log:write("Error executing statement: ", db:errmsg(), "\n")
+    return INTERNAL_SERVER_ERROR
+  end
+end
+
+function numbers_get(request)
+  local stmt = db:prepare("SELECT * FROM numbers WHERE num = ?")
+  local num = tonumber(request.matches[1])
+  if stmt:bind_values(num) ~= sqlite.OK then
+    server.log:write("Error binding parameter: ", db:errmsg(), "\n")
+    return INTERNAL_SERVER_ERROR
+  end
+  if stmt:step() == sqlite.ROW then
+    return {
+      status=200, reason="ok",
+      headers={ ["Content-Type"]="application/json" },
+      body=cjson.encode(num)
+    }
+  else
+    return NOT_FOUND
+  end
+end
+
+function numbers_delete(request)
+  local stmt = db:prepare("DELETE FROM numbers WHERE num = ?")
+  local num = tonumber(request.matches[1])
+  if stmt:bind_values(num) ~= sqlite.OK then
+    server.log:write("Error binding parameter: ", db:errmsg(), "\n")
+    return INTERNAL_SERVER_ERROR
+  end
+  if stmt:step() ~= sqlite.DONE then
+    server.log:write("Error executing statement: ", db:errmsg(), "\n")
+    return INTERNAL_SERVER_ERROR
+  end
+  return NO_CONTENT
+end
+
+function METHOD_NOT_ALLOWED(allowed)
+  return {
+    status=405, reason="method not allowed",
+    headers={ ["Content-Type"]="application/json",
+              ["Allow"]=table.concat(allowed, ",") },
+    body=cjson.encode({ error="method not allowed" })
+  }
+end
+
+function method_not_allowed(allowed)
+  return function(request)
+    return METHOD_NOT_ALLOWED(allowed)
+  end
+end
+
+function not_found(request)
+  return NOT_FOUND
+end
+
+server:add_route("GET", "^/$", hello_world)
+for _,m in ipairs({
+  "PUT","POST","PATCH","DELETE","HEAD","TRACE","OPTIONS","CONNECT"
+    }) do
+  server:add_route(m, "^/$", method_not_allowed{"GET"})
+end
+
+server:add_route("GET", "^/numbers$", numbers_list)
+server:add_route("POST", "^/numbers$", numbers_add)
+for _,m in ipairs({
+  "PUT","PATCH","DELETE","HEAD","TRACE","OPTIONS","CONNECT"
+    }) do
+  server:add_route(m, "^/numbers$", method_not_allowed{"GET","POST"})
+end
+
+server:add_route("GET", "^/numbers/(%d+)$", numbers_get)
+server:add_route("DELETE", "^/numbers/(%d+)$", numbers_delete)
+for _,m in ipairs({
+  "PUT","POST","PATCH","HEAD","TRACE","OPTIONS","CONNECT"
+    }) do
+  server:add_route(m, "^/numbers/(%d+)$", method_not_allowed{"GET","DELETE"})
+end
+
+for _,m in ipairs({
+  "GET","PUT","POST","PATCH","DELETE","HEAD","TRACE","OPTIONS","CONNECT"
+    }) do
+  server:add_route(m, ".*", not_found)
+end
+
+server:run(true)
