@@ -1,4 +1,4 @@
-#!/usr/pkg/bin/lua5.3
+#!/usr/libexec/flua
 --
 -- Minimal web server written in Lua
 --

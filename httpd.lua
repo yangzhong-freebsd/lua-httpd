@@ -1,11 +1,10 @@
---
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
 -- http    stream  tcp     nowait  www    /usr/local/sbin/httpd      httpd
 
 --
--- Copyright (c) 2016 Ryan Moeller <ryan@freqlabs.com>
+-- Copyright (c) 2016 - 2020 Ryan Moeller <ryan@freqlabs.com>
 --
 -- Permission to use, copy, modify, and distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
@@ -146,7 +145,7 @@ end
 -- example response table:
 -- { status=404, reason="not found", headers={}, cookies={},
 --   body="404 Not Found" }
-function write_http_response(server, response)
+local function write_http_response(server, response)
    local output = server.output
 
    local status = response.status
@@ -155,7 +154,7 @@ function write_http_response(server, response)
    local cookies = response.cookies or {}
    local body = response.body
 
-   if body then
+   if type(body) == "string" then
       headers['Content-Length'] = #body
    end
 
@@ -174,8 +173,11 @@ function write_http_response(server, response)
 
    output:write("\r\n")
 
-   if body then
+   if type(body) == "string" then
       output:write(body)
+   elseif type(body) == "function" then
+      output:flush()
+      body(output)
    end
 end
 

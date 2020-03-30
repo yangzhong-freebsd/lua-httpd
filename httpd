@@ -1,12 +1,12 @@
-#!/usr/bin/env lua
---
+#!/usr/libexec/flua
+
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
 -- http    stream  tcp     nowait  www    /usr/local/sbin/httpd      httpd
 
 --
--- Copyright (c) 2016 Ryan Moeller <ryan@freqlabs.com>
+-- Copyright (c) 2016 - 2020 Ryan Moeller <ryan@freqlabs.com>
 --
 -- Permission to use, copy, modify, and distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
@@ -21,35 +21,97 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
+package.path = "/usr/home/ryan/lua-httpd/?.lua;" .. package.path
+
 local httpd = require("httpd")
+local template = require("template")
+local distset = require("distset")
+local keymap = require("keymap")
 
-function hello_world(request)
-   return { status=200, reason="ok", body=[[
-<html>
-<head>
-<title>Hello, world!</title>
-</head>
-<body>
-<h1>Hello, world!</h1>
-</body>
-</html>
-]] }
-end
-
-function forbidden(request)
-   return { status=403, reason="forbidden", body=[[
-<html>
-<head>
-<title>Access Denied!</title>
-</head>
-<body>
-<h1>Access denied!</h1>
-</body>
-</html>
-]] }
-end
+local distsets = distset.list("/usr/home/ryan")
+local keymap_index, keymap_menu = keymap.index(keymap.VT)
 
 local server = httpd.create_server("/var/log/httpd.log")
-server:add_route("GET", "^/$", hello_world)
-server:add_route("GET", ".*", forbidden)
+server:add_route("GET", "^/(.*)$", function(request)
+    local lang = request.matches[1]
+    if lang == "" then
+	lang = "en"
+    end
+    local body = template.process([[
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Install FreeBSD</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <!--link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"-->
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+
+        <h1 class="title">Install FreeBSD</h1>
+
+        <form action="/install" method="POST">
+
+          <div class="field">
+            <label class="label">{{keymap_menu[lang]}}:</label>
+            <div class="control">
+              <div class="select">
+                <select name="keymap">
+                  {% for _, map in ipairs(keymap_index[lang]) do %}
+                    <option {{map.file:find("/us.kbd$") and "selected" or ""}}
+                      value="{{map.file}}">{{map.desc}}</option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Hostname:</label>
+            <div class="control">
+              <input class="input" type="text" name="hostname" value="freebsd">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Extra distsets:</label>
+            <div class="control">
+              <div class="select is-multiple">
+                <select multiple size="8" name="distsets">
+                  {% for _, dist in ipairs(distsets) do
+                    if dist.name ~= "base" and dist.name ~= "kernel" then %}
+                      <option {{dist.sele and "selected" or ""}}
+                        value="{{dist.file}}">{{dist.desc}}</option>
+                    {% end
+                  end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <input class="button is-primary" type="submit" value="Apply">
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </section>
+  </body>
+</html>
+]], { theme = "flatly", -- "darkly" -- NB: the Bulmaswatch themes are broken atm
+      lang = lang,
+      distsets = distsets,
+      keymap_menu = keymap_menu,
+      keymap_index = keymap_index })
+    return { status=200, reason="ok", body=body }
+end)
+server:add_route("POST", "^/install$", function(request)
+    return { status=501, reason="Not implemented", body="TODO" }
+end)
 server:run(true)
