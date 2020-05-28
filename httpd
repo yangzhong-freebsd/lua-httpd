@@ -1,5 +1,5 @@
 #!/usr/libexec/flua
-
+-- vim: set et:
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
