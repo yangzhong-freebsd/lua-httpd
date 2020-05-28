@@ -25,9 +25,12 @@ package.path = "/usr/home/ryan/lua-httpd/?.lua;" .. package.path
 
 local httpd = require("httpd")
 local template = require("template")
-local distset = require("distset")
+
+local boot = require("boot")
 local disk = require("disk")
+local distset = require("distset")
 local keymap = require("keymap")
+local partition = require("partition")
 
 local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
 
@@ -130,6 +133,22 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Partitioning:</label>
+            <div class="control">
+              <div class="select">
+                <select name="partitioning">
+                  {% for _, style in ipairs(partition_styles) do %}
+                    <option value="{{style.value}}"
+                      {{selected(style.prefer(bootmode))}}>
+                      {{style.title}}
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
             <div class="control">
               <input class="button is-primary" type="submit" value="Apply">
             </div>
@@ -143,10 +162,14 @@ server:add_route("GET", "^/(.*)$", function(request)
 </html>
 ]], { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
       lang = lang,
+      boothowto = boot.howto(),
+      bootmethod = boot.method(),
       disks = disk.info(),
       distsets = distset.list(manifest),
       keymap_menu = keymap_menu,
-      keymap_index = keymap_index })
+      keymap_index = keymap_index,
+      partition_styles = partition.styles,
+    })
     return { status=200, reason="ok", body=body }
 end)
 server:add_route("POST", "^/install$", function(request)
