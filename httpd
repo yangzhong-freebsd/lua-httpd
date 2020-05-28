@@ -59,8 +59,8 @@ server:add_route("GET", "^/(.*)$", function(request)
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Install FreeBSD</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <!--link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css">
   </head>
   <body>
     <section class="section">
@@ -136,7 +136,7 @@ server:add_route("GET", "^/(.*)$", function(request)
     </section>
   </body>
 </html>
-]], { theme = "flatly", -- "darkly" -- NB: the Bulmaswatch themes are broken atm
+]], { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
       lang = lang,
       disks = disk.info(),
       distsets = distset.list(manifest),
