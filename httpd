@@ -26,11 +26,24 @@ package.path = "/usr/home/ryan/lua-httpd/?.lua;" .. package.path
 local httpd = require("httpd")
 local template = require("template")
 local distset = require("distset")
+local disk = require("disk")
 local keymap = require("keymap")
 
 local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
-local distsets = distset.list(manifest)
-local keymap_index, keymap_menu = keymap.index(keymap.VT)
+
+function pairsByKeys(t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0 -- iterator variable
+    local iter = function() -- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+    end
+    return iter
+end
 
 local server = httpd.create_server("/var/log/httpd.log")
 server:add_route("GET", "^/(.*)$", function(request)
@@ -38,6 +51,7 @@ server:add_route("GET", "^/(.*)$", function(request)
     if lang == "" then
 	lang = "en"
     end
+    local keymap_index, keymap_menu = keymap.index(keymap.VT)
     local body = template.process([[
 <!DOCTYPE html>
 <html>
@@ -94,6 +108,23 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Disk selection:</label>
+            <div class="control">
+              <div class="select is-multiple">
+                <select multiple size="8" name="disks">
+                  {% for dev, info in pairsByKeys(disks) do %}
+                    <option value="{{dev}}">
+                        {{dev}}:
+                        {{info["Disk descr."]}}
+                        ({{info["mediasize in bytes human"]}})
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
             <div class="control">
               <input class="button is-primary" type="submit" value="Apply">
             </div>
@@ -107,7 +138,8 @@ server:add_route("GET", "^/(.*)$", function(request)
 </html>
 ]], { theme = "flatly", -- "darkly" -- NB: the Bulmaswatch themes are broken atm
       lang = lang,
-      distsets = distsets,
+      disks = disk.info(),
+      distsets = distset.list(manifest),
       keymap_menu = keymap_menu,
       keymap_index = keymap_index })
     return { status=200, reason="ok", body=body }
