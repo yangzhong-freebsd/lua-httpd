@@ -16,11 +16,11 @@
 
 local distset = distset or {}
 
-local DISTDIR = "/usr/freebsd-dist"
+local DISTDIR = "/usr/freebsd-dist/MANIFEST"
 
-function distset.list(distdir)
+function distset.list(distfile)
     local list = {}
-    local f = assert(io.open(distdir .. "/MANIFEST", "r"))
+    local f = assert(io.open(distfile, "r"))
     local text = f:read("*a")
     f:close()
     for line in text:gmatch("([^\n]+)") do

@@ -28,7 +28,8 @@ local template = require("template")
 local distset = require("distset")
 local keymap = require("keymap")
 
-local distsets = distset.list("/usr/home/ryan")
+local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
+local distsets = distset.list(manifest)
 local keymap_index, keymap_menu = keymap.index(keymap.VT)
 
 local server = httpd.create_server("/var/log/httpd.log")
