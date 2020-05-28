@@ -45,6 +45,10 @@ function pairsByKeys(t, f)
     return iter
 end
 
+function selected(cond)
+    return cond and "selected" or ""
+end
+
 local server = httpd.create_server("/var/log/httpd.log")
 server:add_route("GET", "^/(.*)$", function(request)
     local lang = request.matches[1]
@@ -76,7 +80,7 @@ server:add_route("GET", "^/(.*)$", function(request)
               <div class="select">
                 <select name="keymap">
                   {% for _, map in ipairs(keymap_index[lang]) do %}
-                    <option {{map.file:find("/us.kbd$") and "selected" or ""}}
+                    <option {{selected(map.file:find("/us.kbd$"))}}
                       value="{{map.file}}">{{map.desc}}</option>
                   {% end %}
                 </select>
@@ -98,8 +102,9 @@ server:add_route("GET", "^/(.*)$", function(request)
                 <select multiple size="8" name="distsets">
                   {% for _, dist in ipairs(distsets) do
                     if dist.name ~= "base" and dist.name ~= "kernel" then %}
-                      <option {{dist.sele and "selected" or ""}}
-                        value="{{dist.file}}">{{dist.desc}}</option>
+                      <option {{selected(dist.sele)}} value="{{dist.file}}">
+                        {{dist.desc}}
+                      </option>
                     {% end
                   end %}
                 </select>
