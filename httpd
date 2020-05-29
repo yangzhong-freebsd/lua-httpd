@@ -139,7 +139,7 @@ server:add_route("GET", "^/(.*)$", function(request)
                 <select name="partitioning">
                   {% for _, style in ipairs(partition_styles) do %}
                     <option value="{{style.value}}"
-                      {{selected(style.prefer(bootmode))}}>
+                      {{selected(style.prefer(bootmethod))}}>
                       {{style.title}}
                     </option>
                   {% end %}

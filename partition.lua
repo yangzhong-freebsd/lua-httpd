@@ -22,42 +22,42 @@ partition.styles = {
     {
         title = "GPT (BIOS)",
         value = "GPT:BIOS",
-        prefer = function(bootmode)
-            return bootmode == "BIOS"
+        prefer = function(bootmethod)
+            return bootmethod == "BIOS"
         end,
     },
     {
         title = "GPT (UEFI)",
         value = "GPT:UEFI",
-        prefer = function(bootmode)
+        prefer = function(bootmethod)
             return false
         end,
     },
     {
         title = "GPT (BIOS+UEFI)",
         value = "GPT:BIOS+UEFI",
-        prefer = function(bootmode)
-            return bootmode == "UEFI"
+        prefer = function(bootmethod)
+            return bootmethod == "UEFI"
         end,
     },
     {
         title = "MBR (BIOS)",
         value = "MBR:BIOS",
-        prefer = function(bootmode)
+        prefer = function(bootmethod)
             return false
         end,
     },
     {
         title = "GPT + Active (BIOS)",
         value = "GPT + Active:BIOS",
-        prefer = function(bootmode)
+        prefer = function(bootmethod)
             return false
         end,
     },
     {
         title = "GPT + Lenovo Fix (BIOS)",
         value = "GPT + Lenovo Fix:BIOS",
-        prefer = function(bootmode)
+        prefer = function(bootmethod)
             return false
         end,
     },
