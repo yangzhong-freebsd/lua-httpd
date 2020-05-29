@@ -106,7 +106,7 @@ server:add_route("GET", "^/(.*)$", function(request)
                   {% for _, dist in ipairs(distsets) do
                     if dist.name ~= "base" and dist.name ~= "kernel" then %}
                       <option {{selected(dist.sele)}} value="{{dist.file}}">
-                        {{dist.desc}}
+                        {{dist.desc}} {{dist.sele and "*" or ""}}
                       </option>
                     {% end
                   end %}
@@ -141,6 +141,7 @@ server:add_route("GET", "^/(.*)$", function(request)
                     <option value="{{style.value}}"
                       {{selected(style.prefer(bootmethod))}}>
                       {{style.title}}
+                      {{style.prefer(bootmethod) and "*" or ""}}
                     </option>
                   {% end %}
                 </select>
