@@ -29,6 +29,7 @@ local template = require("template")
 local boot = require("boot")
 local disk = require("disk")
 local distset = require("distset")
+local filesystem = require("filesystem")
 local keymap = require("keymap")
 local partition = require("partition")
 
@@ -150,6 +151,30 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Filesystem:</label>
+            <div class="control">
+              <div class="select">
+                <select name="filesystem">
+                  {% for _, fs in ipairs(filesystem_formats) do %}
+                    <option value="{{fs.value}}"
+                      {{selected(fs.default)}}>
+                      {{fs.title}}
+                      {{fs.default and "*" or ""}}
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" name="geli">
+                  Use GELI encryption
+                </input>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
             <div class="control">
               <input class="button is-primary" type="submit" value="Apply">
             </div>
@@ -167,6 +192,7 @@ server:add_route("GET", "^/(.*)$", function(request)
       bootmethod = boot.method(),
       disks = disk.info(),
       distsets = distset.list(manifest),
+      filesystem_formats = filesystem.formats,
       keymap_menu = keymap_menu,
       keymap_index = keymap_index,
       partition_styles = partition.styles,
