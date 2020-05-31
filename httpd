@@ -71,8 +71,8 @@ server:add_route("GET", "^/(.*)$", function(request)
     <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css">
   </head>
   <body>
-    <section class="section">
-      <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-narrow">
 
         <h1 class="title">Install FreeBSD</h1>
 
@@ -183,7 +183,7 @@ server:add_route("GET", "^/(.*)$", function(request)
         </form>
 
       </div>
-    </section>
+    </div>
   </body>
 </html>
 ]], { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
