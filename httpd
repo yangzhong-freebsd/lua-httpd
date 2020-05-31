@@ -32,6 +32,7 @@ local distset = require("distset")
 local filesystem = require("filesystem")
 local keymap = require("keymap")
 local partition = require("partition")
+local service = require("service")
 
 local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
 
@@ -228,6 +229,20 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Enabled services:</label>
+            {% for _, svc in ipairs(service_menu) do %}
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="{{svc.name}}"
+                    {{svc.default and "checked" or ""}}>
+                    {{svc.description}}
+                  </input>
+                </label>
+              </div>
+            {% end %}
+          </div>
+
+          <div class="field">
             <label class="label">Setup script:</label>
             <div class="control">
               <textarea class="textarea">
@@ -260,6 +275,7 @@ server:add_route("GET", "^/(.*)$", function(request)
       keymap_menu = keymap_menu,
       keymap_index = keymap_index,
       partition_styles = partition.styles,
+      service_menu = service.menu,
     })
     return { status=200, reason="ok", body=body }
 end)
