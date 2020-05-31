@@ -168,9 +168,62 @@ server:add_route("GET", "^/(.*)$", function(request)
             <div class="control">
               <label class="checkbox">
                 <input type="checkbox" name="geli">
-                  Use GELI encryption
+                  GELI encryption (uses root password)
                 </input>
               </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Root password:</label>
+            <div class="control">
+              <input class="input" type="password" name="root-password"
+                placeholder="root password">
+            </div>
+            <label class="label">Confirm root password:</label>
+            <div class="control">
+              <input class="input" type="password" name="confirm-root-password"
+                placeholder="confirm root password">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Real name:</label>
+            <div class="control">
+              <input class="input" type="text" name="real-name"
+                placeholder="real name">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Username:</label>
+            <div class="control">
+              <input class="input" type="text" name="username"
+                placeholder="username">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Additional groups:</label>
+            <div class="control">
+              <input class="input" type="text" name="groups"
+                placeholder="additional groups">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Password:</label>
+            <div class="control">
+              <input class="input" type="password" name="user-password"
+                placeholder="password">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Confirm password:</label>
+            <div class="control">
+              <input class="input" type="password" name="confirm-user-password"
+                placeholder="confirm password">
             </div>
           </div>
 
