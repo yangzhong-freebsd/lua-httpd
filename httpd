@@ -30,6 +30,7 @@ local boot = require("boot")
 local disk = require("disk")
 local distset = require("distset")
 local filesystem = require("filesystem")
+local hardening = require("hardening")
 local keymap = require("keymap")
 local partition = require("partition")
 local service = require("service")
@@ -243,6 +244,19 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Security hardening:</label>
+            {% for _, item in ipairs(hardening_menu) do %}
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="{{item.name}}">
+                    {{item.description}}
+                  </input>
+                </label>
+              </div>
+            {% end %}
+          </div>
+
+          <div class="field">
             <label class="label">Setup script:</label>
             <div class="control">
               <textarea class="textarea">
@@ -272,6 +286,7 @@ server:add_route("GET", "^/(.*)$", function(request)
       disks = disk.info(),
       distsets = distset.list(manifest),
       filesystem_formats = filesystem.formats,
+      hardening_menu = hardening.menu,
       keymap_menu = keymap_menu,
       keymap_index = keymap_index,
       partition_styles = partition.styles,
