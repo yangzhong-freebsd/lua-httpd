@@ -228,6 +228,17 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Setup script:</label>
+            <div class="control">
+              <textarea class="textarea">
+#!/bin/sh
+# Extra commands to run in a chroot
+# before rebooting into the system
+              </textarea>
+            </div>
+          </div>
+
+          <div class="field">
             <div class="control">
               <input class="button is-primary" type="submit" value="Apply">
             </div>
