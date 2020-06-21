@@ -1,3 +1,4 @@
+-- lua-resty-template (modified to remove external dependencies)
 --[[
 Copyright (c) 2014 - 2020 Aapo Talvensaari
 All rights reserved.
