@@ -41,22 +41,15 @@ partition.styles = {
         end,
     },
     {
-        title = "MBR (BIOS)",
-        value = "MBR:BIOS",
-        prefer = function(bootmethod)
-            return false
-        end,
-    },
-    {
         title = "GPT + Active (BIOS)",
-        value = "GPT + Active:BIOS",
+        value = "GPT+ACTIVE:BIOS",
         prefer = function(bootmethod)
             return false
         end,
     },
     {
         title = "GPT + Lenovo Fix (BIOS)",
-        value = "GPT + Lenovo Fix:BIOS",
+        value = "GPT+LENOVOFIX:BIOS",
         prefer = function(bootmethod)
             return false
         end,
