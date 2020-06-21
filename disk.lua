@@ -19,7 +19,9 @@ local disk = disk or {}
 
 local function kern_disks()
     local disksfile = "/tmp/disks"
-    assert(os.execute("sysctl -n kern.disks >" .. disksfile))
+    assert(os.execute("sysctl -n kern.disks | xargs -n1 >" .. disksfile))
+    assert(os.execute("ggatel list >>" .. disksfile))
+    assert(os.execute("sudo -u root mdconfig -l >>" .. disksfile))
     local f = assert(io.open(disksfile, "r"))
     local text = f:read("*a")
     f:close()
