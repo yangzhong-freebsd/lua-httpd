@@ -209,7 +209,7 @@ server:add_route("GET", "^/(.*)$", function(request)
             <label class="label">Additional groups:</label>
             <div class="control">
               <input class="input" type="text" name="groups"
-                placeholder="additional groups">
+                placeholder="additional groups">wheel</input>
             </div>
           </div>
 
