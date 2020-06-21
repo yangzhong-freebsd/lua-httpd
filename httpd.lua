@@ -410,4 +410,6 @@ function M.create_server(logfile)
    return server
 end
 
+M.parse_query_string = parse_request_query
+
 return M
