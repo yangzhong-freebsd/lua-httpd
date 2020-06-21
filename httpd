@@ -34,6 +34,7 @@ local hardening = require("hardening")
 local keymap = require("keymap")
 local partition = require("partition")
 local service = require("service")
+local shell = require("shell")
 
 local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
 
@@ -214,6 +215,19 @@ server:add_route("GET", "^/(.*)$", function(request)
           </div>
 
           <div class="field">
+            <label class="label">Shell:</label>
+            <div class="control">
+              <div class="select">
+                <select name="shell">
+                  {% for _, shell in ipairs(shells) do %}
+                    <option value="{{shell}}">{{shell}}</option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
             <label class="label">Password:</label>
             <div class="control">
               <input class="input" type="password" name="user_password"
@@ -291,6 +305,7 @@ server:add_route("GET", "^/(.*)$", function(request)
       keymap_index = keymap_index,
       partition_styles = partition.styles,
       service_menu = service.menu,
+      shells = shell.list,
     })
     return { status=200, reason="ok", body=body }
 end)
