@@ -179,12 +179,12 @@ server:add_route("GET", "^/(.*)$", function(request)
           <div class="field">
             <label class="label">Root password:</label>
             <div class="control">
-              <input class="input" type="password" name="root-password"
+              <input class="input" type="password" name="root_password"
                 placeholder="root password">
             </div>
             <label class="label">Confirm root password:</label>
             <div class="control">
-              <input class="input" type="password" name="confirm-root-password"
+              <input class="input" type="password" name="confirm_root_password"
                 placeholder="confirm root password">
             </div>
           </div>
@@ -192,7 +192,7 @@ server:add_route("GET", "^/(.*)$", function(request)
           <div class="field">
             <label class="label">Real name:</label>
             <div class="control">
-              <input class="input" type="text" name="real-name"
+              <input class="input" type="text" name="real_name"
                 placeholder="real name">
             </div>
           </div>
@@ -216,7 +216,7 @@ server:add_route("GET", "^/(.*)$", function(request)
           <div class="field">
             <label class="label">Password:</label>
             <div class="control">
-              <input class="input" type="password" name="user-password"
+              <input class="input" type="password" name="user_password"
                 placeholder="password">
             </div>
           </div>
@@ -224,7 +224,7 @@ server:add_route("GET", "^/(.*)$", function(request)
           <div class="field">
             <label class="label">Confirm password:</label>
             <div class="control">
-              <input class="input" type="password" name="confirm-user-password"
+              <input class="input" type="password" name="confirm_user_password"
                 placeholder="confirm password">
             </div>
           </div>
