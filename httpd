@@ -37,7 +37,7 @@ local service = require("service")
 
 local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-12.1-RELEASE"
 
-function pairsByKeys(t, f)
+function pairs_by_keys(t, f)
     local a = {}
     for n in pairs(t) do table.insert(a, n) end
     table.sort(a, f)
@@ -123,7 +123,7 @@ server:add_route("GET", "^/(.*)$", function(request)
             <div class="control">
               <div class="select is-multiple">
                 <select multiple size="8" name="disks">
-                  {% for dev, info in pairsByKeys(disks) do %}
+                  {% for dev, info in pairs_by_keys(disks) do %}
                     <option value="{{dev}}">
                         {{dev}}:
                         {{info["Disk descr."]}}
