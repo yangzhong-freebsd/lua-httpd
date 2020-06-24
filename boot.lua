@@ -18,9 +18,7 @@
 local boot = boot or {}
 
 function boot.howto()
-    local howtofile = "/tmp/boothowto"
-    assert(os.execute("sysctl -n debug.boothowto >" .. howtofile))
-    local f = assert(io.open(howtofile, "r"))
+    local f = io.popen("sysctl -n debug.boothowto", "r")
     local text = f:read("*a")
     f:close()
     local howto = tonumber(text)
@@ -57,9 +55,7 @@ function boot.howto()
 end
 
 function boot.method()
-    local methodfile = "/tmp/bootmethod"
-    assert(os.execute("sysctl -n machdep.bootmethod >" .. methodfile))
-    local f = assert(io.open(methodfile, "r"))
+    local f = io.popen("sysctl -n machdep.bootmethod", "r")
     local text = f:read("*a")
     f:close()
     local bootmethod = text:match("([^\n]+)")

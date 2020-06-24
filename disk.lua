@@ -18,20 +18,17 @@
 local disk = disk or {}
 
 local function kern_disks()
-    local disksfile = "/tmp/disks"
-    assert(os.execute("sysctl -n kern.disks | xargs -n1 >" .. disksfile))
-    assert(os.execute("ggatel list >>" .. disksfile))
-    assert(os.execute("sudo -u root mdconfig -l >>" .. disksfile))
-    local f = assert(io.open(disksfile, "r"))
+    local f = io.popen("sysctl -n kern.disks | xargs -n1;" ..
+                       "ggatel list;" ..
+                       "sudo -u root mdconfig -l | xargs -n1;",
+                       "r")
     local text = f:read("*a")
     f:close()
     return text
 end
 
 local function diskinfo(dev)
-    local descfile = "/tmp/desc"
-    assert(os.execute("sudo -u root diskinfo -v "..dev.." >" .. descfile))
-    local f = assert(io.open(descfile, "r"))
+    local f = io.popen("sudo -u root diskinfo -v "..dev, "r")
     local text = f:read("*a")
     f:close()
     return text
