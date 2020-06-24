@@ -1,4 +1,4 @@
--- vim: set et:
+-- vim: set et sw=4:
 --
 -- Copyright (c) 2020 Ryan Moeller <ryan@freqlabs.com>
 --
