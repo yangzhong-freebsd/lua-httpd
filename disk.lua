@@ -20,7 +20,7 @@ local disk = disk or {}
 local function kern_disks()
     local f = io.popen("sysctl -n kern.disks | xargs -n1;" ..
                        "ggatel list;" ..
-                       "sudo -u root mdconfig -l | xargs -n1;",
+                       "mdconfig -l | xargs -n1;",
                        "r")
     local text = f:read("*a")
     f:close()
@@ -28,7 +28,7 @@ local function kern_disks()
 end
 
 local function diskinfo(dev)
-    local f = io.popen("sudo -u root diskinfo -v "..dev, "r")
+    local f = io.popen("diskinfo -v "..dev, "r")
     local text = f:read("*a")
     f:close()
     return text
