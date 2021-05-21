@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Install FreeBSD</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css">
+  </head>
+  <body>
+    <div class="columns is-centered">
+      <div class="column is-narrow">
+
+        <h1 class="title">Install FreeBSD</h1>
+
+        <form action="/install" method="POST">
+
+          <div class="field">
+            <label class="label">{{keymap_menu[lang]}}:</label>
+            <div class="control">
+              <div class="select">
+                <select name="keymap">
+                  {% for _, map in ipairs(keymap_index[lang]) do %}
+                    <option {{selected(map.file:find("/us.kbd$"))}}
+                      value="{{map.file}}">{{map.desc}}</option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Hostname:</label>
+            <div class="control">
+              <input class="input" type="text" name="hostname" value="freebsd">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Extra distsets:</label>
+            <div class="control">
+              <div class="select is-multiple">
+                <select multiple size="8" name="distsets">
+                  {% for _, dist in ipairs(distsets) do
+                    if dist.name ~= "base" and dist.name ~= "kernel" then %}
+                      <option {{selected(dist.sele)}} value="{{dist.file}}">
+                        {{dist.desc}} {{dist.sele and "*" or ""}}
+                      </option>
+                    {% end
+                  end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Disk selection:</label>
+            <div class="control">
+              <div class="select is-multiple">
+                <select multiple size="8" name="disks">
+                  {% for dev, info in pairs_by_keys(disks) do %}
+                    <option value="{{dev}}">
+                        {{dev}}:
+                        {{info["Disk descr."]}}
+                        ({{info["mediasize in bytes human"]}})
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Partitioning:</label>
+            <div class="control">
+              <div class="select">
+                <select name="partitioning">
+                  {% for _, style in ipairs(partition_styles) do %}
+                    <option value="{{style.value}}"
+                      {{selected(style.prefer(bootmethod))}}>
+                      {{style.title}}
+                      {{style.prefer(bootmethod) and "*" or ""}}
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Filesystem:</label>
+            <div class="control">
+              <div class="select">
+                <select name="filesystem">
+                  {% for _, fs in ipairs(filesystem_formats) do %}
+                    <option value="{{fs.value}}"
+                      {{selected(fs.default)}}>
+                      {{fs.title}}
+                      {{fs.default and "*" or ""}}
+                    </option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" name="geli">
+                  GELI encryption (uses root password)
+                </input>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Root password:</label>
+            <div class="control">
+              <input class="input" type="password" name="root_password"
+                placeholder="root password">
+            </div>
+            <label class="label">Confirm root password:</label>
+            <div class="control">
+              <input class="input" type="password" name="confirm_root_password"
+                placeholder="confirm root password">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Real name:</label>
+            <div class="control">
+              <input class="input" type="text" name="real_name"
+                placeholder="real name">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Username:</label>
+            <div class="control">
+              <input class="input" type="text" name="username"
+                placeholder="username">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Additional groups:</label>
+            <div class="control">
+              <input class="input" type="text" name="groups"
+                placeholder="additional groups" value="wheel">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Shell:</label>
+            <div class="control">
+              <div class="select">
+                <select name="shell">
+                  {% for _, shell in ipairs(shells) do %}
+                    <option value="{{shell}}">{{shell}}</option>
+                  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Password:</label>
+            <div class="control">
+              <input class="input" type="password" name="user_password"
+                placeholder="password">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Confirm password:</label>
+            <div class="control">
+              <input class="input" type="password" name="confirm_user_password"
+                placeholder="confirm password">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Enabled services:</label>
+            {% for _, svc in ipairs(service_menu) do %}
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="{{svc.name}}"
+                    {{svc.default and "checked" or ""}}>
+                    {{svc.description}}
+                  </input>
+                </label>
+              </div>
+            {% end %}
+          </div>
+
+          <div class="field">
+            <label class="label">Security hardening:</label>
+            {% for _, item in ipairs(hardening_menu) do %}
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="{{item.name}}">
+                    {{item.description}}
+                  </input>
+                </label>
+              </div>
+            {% end %}
+          </div>
+
+          <div class="field">
+            <label class="label">Setup script:</label>
+            <div class="control">
+              <textarea class="textarea">
+#!/bin/sh
+# Extra commands to run in a chroot
+# before rebooting into the system
+              </textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <input class="button is-primary" type="submit" value="Apply">
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </body>
+</html>
