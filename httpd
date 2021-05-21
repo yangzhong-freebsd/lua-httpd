@@ -21,7 +21,7 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
-package.path = "/usr/home/yang/src/lua-httpd/?.lua;" .. package.path
+package.path = "/usr/home/yang-vm/src/lua-httpd/?.lua;" .. package.path
 
 local httpd = require("httpd")
 local template = require("template")
@@ -37,9 +37,9 @@ local service = require("service")
 local shell = require("shell")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
-local manifest = "/home/yang/Downloads/MANIFEST"
+local manifest = "/home/yang-vm/src/lua-httpd/MANIFEST"
 
-local http_file = assert(io.open("/home/yang/src/lua-httpd/installer.html", "r"))
+local http_file = assert(io.open("/home/yang-vm/src/lua-httpd/installer.html", "r"))
 local string = http_file:read("*all")
 
 function pairs_by_keys(t, f)
@@ -102,11 +102,39 @@ server:add_route("GET", "^/(.*)$", function(request)
 end)
 server:add_route("POST", "^/install$", function(request)
 
-    local the_file = io.tmpfile()
+    local file = io.open("/home/yang-vm/src/lua-httpd/output", "w+")
+    local lines = splitString(request.body, "&")
 
-    for i, thing in ipairs(splitString(unescape(request.body), "&")) do
-            print(i, thing)
+    local distsets = ""
+    local disks = ""
+
+    local cfg = {}
+
+    for i, line in ipairs(lines) do
+            local mapping = unescape(line)
+
+            local key, val = mapping:match("^([^=]+)=(.*)")
+            if (key == "distsets") then
+                    distsets = val .. " " .. distsets
+            elseif (key == "disks") then
+                    disks = val .. " " .. disks
+            else
+                    cfg[key] = val
+            end
+            print(key, val)
     end
+
+    file:write("PARTITIONS=\"" .. disks .. "\"\n")
+    file:write("DISTRIBUTIONS=\"" .. distsets .. "\"\n")
+    file:write("\n")
+    file:write("#!/bin/sh\n")
+    file:write("\n")
+    file:write("echo " .. cfg.root_password .. "| pw usermod root -h 0\n")
+    file:write("kbdcontrol -l " .. cfg.keymap .. "\n")
+    file:write("hostname " .. cfg.hostname .. "\n")
+    file:write("echo 'hostname=\"" .. cfg.hostname .. "\"' >> /etc/rc.conf\n")
+    file:write("echo " .. cfg.user_password .. "|pw useradd -n " .. cfg.username .. " -c \"" .. cfg.real_name .. "\" -s " .. cfg.shell .. " -h 0\n")
+
     return { status=501, reason="Not implemented", body="TODO" }
 end)
 server:run(true)
