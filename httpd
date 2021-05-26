@@ -39,102 +39,202 @@ local shell = require("shell")
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
 local manifest = "/home/yang-vm/src/lua-httpd/MANIFEST"
 
-local http_file = assert(io.open("/home/yang-vm/src/lua-httpd/installer.html", "r"))
-local string = http_file:read("*all")
+local db_file = "/home/yang-vm/src/lua-httpd/db"
+local db = io.open(db_file, "r+")
+
+local main_page_file = assert(io.open("/home/yang-vm/src/lua-httpd/main_page.html", "r"))
+local main_page = main_page_file:read("*all")
+main_page_file:close()
+
+local add_user_file= assert(io.open("/home/yang-vm/src/lua-httpd/add_user.html", "r"))
+local add_user_page = add_user_file:read("*all")
+add_user_file:close()
 
 function pairs_by_keys(t, f)
-    local a = {}
-    for n in pairs(t) do table.insert(a, n) end
-    table.sort(a, f)
-    local i = 0 -- iterator variable
-    local iter = function() -- iterator function
-        i = i + 1
-        if a[i] == nil then return nil
-        else return a[i], t[a[i]]
+        local a = {}
+        for n in pairs(t) do table.insert(a, n) end
+        table.sort(a, f)
+        local i = 0 -- iterator variable
+        local iter = function() -- iterator function
+                i = i + 1
+                if a[i] == nil then return nil
+                else return a[i], t[a[i]]
+                end
         end
-    end
-    return iter
+        return iter
 end
 
 function selected(cond)
-    return cond and "selected" or ""
+        return cond and "selected" or ""
 end
 
 --TODO: properly credit
 function unescape (str)
-   str = string.gsub (str, "+", " ")
-   str = string.gsub (str, "%%(%x%x)", function(h) return string.char(tonumber(h,16)) end)
-   return str
+        str = string.gsub (str, "+", " ")
+        str = string.gsub (str, "%%(%x%x)", function(h) return string.char(tonumber(h,16)) end)
+        return str
 end
 
 function splitString(str, char)
         local split_list = {}
-        
+
         for match in str:gmatch("[^" .. char .. "]+") do
                 table.insert(split_list, match)
         end
         return split_list
 end
 
+function parseDB()
+        db:seek("set")
+        local contents = db:read("*all")
+        local lines = splitString(contents, "\n")
+        local table = {
+                users = {},
+        }
+
+        for i, line in ipairs(lines) do
+                if (line:match("user:")) then --TODO make this logic better
+                        local username, prop, val = line:match("^[^:]+:([^.]+).([^=]+)=(.*)")
+                        if (table.users[username] == nil) then
+                                table.users[username] = {}
+                        end
+                        table.users[username][prop] = val
+                else
+                        local prop, val = line:match("^([^=]+)=(.*)")
+                        table[prop] = val
+                end
+        end
+
+        return table
+end
+
+function getUsers()
+        local users = parseDB().users
+        local user_list = {}
+
+        for username, props in pairs(users) do
+                local user = {}
+                user.username = username
+                for key, val in pairs(props) do
+                        user[key] = val
+                end
+                table.insert(user_list, user)
+        end
+        return user_list
+end
+
+function mainPage(request)
+        local lang = request.matches[1]
+        if lang == "" then
+                lang = "en"
+        end
+
+        local keymap_index, keymap_menu = keymap.index(keymap.VT)
+        local body = template.process(main_page,
+                { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
+                lang = lang,
+                boothowto = boot.howto(),
+                bootmethod = boot.method(),
+                disks = disk.info(),
+                distsets = distset.list(manifest),
+                filesystem_formats = filesystem.formats,
+                hardening_menu = hardening.menu,
+                keymap_menu = keymap_menu,
+                keymap_index = keymap_index,
+                partition_styles = partition.styles,
+                service_menu = service.menu,
+                shells = shell.list,
+                users = getUsers(),
+        })
+        return { status=200, reason="ok", body=body }
+end
+
+function addUserPage(request)
+        local body = template.process(add_user_page,
+        {
+                theme = "cerulean", 
+                shells = shell.list,
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function addUser(request)
+        local req = parseRequest(request.body)
+
+        --TODO verify input
+
+        db:seek("end")
+
+        db:write("user:" .. req.username .. ".real_name=" .. req.real_name .. "\n")
+        db:write("user:" .. req.username .. ".password=" .. req.password .. "\n")
+        db:write("user:" .. req.username .. ".groups=" .. req.groups .. "\n")
+        db:write("user:" .. req.username .. ".shell=" .. req.shell .. "\n")
+
+        return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
+end
+
+function parseRequest(body)
+        local lines = splitString(body, "&")
+        local req = {}
+
+        for i, line in ipairs(lines) do
+                local mapping = unescape(line)
+
+                local key, val = mapping:match("^([^=]+)=(.*)")
+                req[key] = val
+        end
+
+        return req
+end
+
+
+function doInstall(request)
+        local lines = splitString(request.body, "&")
+
+        local distsets = ""
+        local disks = ""
+
+        local cfg = {}
+
+        for i, line in ipairs(lines) do
+                local mapping = unescape(line)
+
+                local key, val = mapping:match("^([^=]+)=(.*)")
+                if (key == "distsets") then
+                        distsets = val .. " " .. distsets
+                elseif (key == "disks") then
+                        disks = val .. " " .. disks
+                else
+                        cfg[key] = val
+                end
+        end
+
+        db:seek("end")
+        for key, val in pairs(cfg) do
+                db:write(key .. "=" .. val .. "\n") 
+        end
+
+        db:write("partitions=" .. disks .. "\n")
+        db:write("distributions=" .. distsets .. "\n")
+
+        return { status=501, reason="Not implemented", body="TODO" }
+end
+
+function debug_ClearDB()
+        db:close()
+        io.open(db_file, "w+"):close()
+        db = io.open(db_file, "r+")
+        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
+end
+
 local server = httpd.create_server("/var/log/httpd.log")
-server:add_route("GET", "^/(.*)$", function(request)
-    local lang = request.matches[1]
-    if lang == "" then
-	lang = "en"
-    end
-    local keymap_index, keymap_menu = keymap.index(keymap.VT)
-    local body = template.process(string,
-    { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
-      lang = lang,
-      boothowto = boot.howto(),
-      bootmethod = boot.method(),
-      disks = disk.info(),
-      distsets = distset.list(manifest),
-      filesystem_formats = filesystem.formats,
-      hardening_menu = hardening.menu,
-      keymap_menu = keymap_menu,
-      keymap_index = keymap_index,
-      partition_styles = partition.styles,
-      service_menu = service.menu,
-      shells = shell.list,
-    })
-    return { status=200, reason="ok", body=body }
-end)
-server:add_route("POST", "^/install$", function(request)
 
-    local file = io.open("/home/yang-vm/src/lua-httpd/output", "w+")
-    local lines = splitString(request.body, "&")
+server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
-    local distsets = ""
-    local disks = ""
+server:add_route("GET", "^/adduser$", addUserPage)
+server:add_route("GET", "^/(.*)$", mainPage)
 
-    local cfg = {}
-
-    for i, line in ipairs(lines) do
-            local mapping = unescape(line)
-
-            local key, val = mapping:match("^([^=]+)=(.*)")
-            if (key == "distsets") then
-                    distsets = val .. " " .. distsets
-            elseif (key == "disks") then
-                    disks = val .. " " .. disks
-            else
-                    cfg[key] = val
-            end
-            print(key, val)
-    end
-
-    file:write("PARTITIONS=\"" .. disks .. "\"\n")
-    file:write("DISTRIBUTIONS=\"" .. distsets .. "\"\n")
-    file:write("\n")
-    file:write("#!/bin/sh\n")
-    file:write("\n")
-    file:write("echo " .. cfg.root_password .. "| pw usermod root -h 0\n")
-    file:write("kbdcontrol -l " .. cfg.keymap .. "\n")
-    file:write("hostname " .. cfg.hostname .. "\n")
-    file:write("echo 'hostname=\"" .. cfg.hostname .. "\"' >> /etc/rc.conf\n")
-    file:write("echo " .. cfg.user_password .. "|pw useradd -n " .. cfg.username .. " -c \"" .. cfg.real_name .. "\" -s " .. cfg.shell .. " -h 0\n")
-
-    return { status=501, reason="Not implemented", body="TODO" }
-end)
+server:add_route("POST", "^/install$", doInstall)
+server:add_route("POST", "^/adduser$", addUser)
 server:run(true)

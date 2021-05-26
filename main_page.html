@@ -4,14 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Install FreeBSD</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
   </head>
   <body>
+  <script>
+	function startup () {
+		console.log("testing");
+	}
+	window.addEventListener("load", startup);
+  </script>
     <div class="columns is-centered">
       <div class="column is-narrow">
 
-        <h1 class="title">Install FreeBSD</h1>
+	 <h1 class="title">Install FreeBSD</h1>
 
         <form action="/install" method="POST">
 
@@ -119,7 +125,7 @@
             </div>
           </div>
 
-          <hr>
+	  <hr>
 
           <div class="field">
             <label class="label">Root password:</label>
@@ -136,58 +142,13 @@
 
           <hr>
 
-          <div class="field">
-            <label class="label">Real name:</label>
-            <div class="control">
-              <input class="input" type="text" name="real_name"
-                placeholder="real name">
-            </div>
-          </div>
+	  <h1 class="title" id="users">Users</h1>
 
-          <div class="field">
-            <label class="label">Username:</label>
-            <div class="control">
-              <input class="input" type="text" name="username"
-                placeholder="username">
-            </div>
-          </div>
+	  <a href="/adduser">Add User</a>
 
-          <div class="field">
-            <label class="label">Additional groups:</label>
-            <div class="control">
-              <input class="input" type="text" name="groups"
-                placeholder="additional groups" value="wheel">
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Shell:</label>
-            <div class="control">
-              <div class="select">
-                <select name="shell">
-                  {% for _, shell in ipairs(shells) do %}
-                    <option value="{{shell}}">{{shell}}</option>
-                  {% end %}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Password:</label>
-            <div class="control">
-              <input class="input" type="password" name="user_password"
-                placeholder="password">
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Confirm password:</label>
-            <div class="control">
-              <input class="input" type="password" name="confirm_user_password"
-                placeholder="confirm password">
-            </div>
-          </div>
+	  {% for _, usr in ipairs(users) do %}
+	  <p> {{usr.username}} {{usr.real_name}} {{usr.groups}} {{usr.shell}} {{usr.password}}</p>
+	  {% end %}
 
           <hr>
 
