@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Install FreeBSD</title>
+		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+			<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
+	</head>
+	<body>
+		<script>
+			function scan() {
+				let wireless_select = document.getElementById("wireless_select");
+				let scanning_text = document.getElementById("scanning_text");
+
+				scanning_text.hidden = false;
+				wireless_select.hidden = true;
+				fetch("/scanwireless").then(data => {
+					data.text().then(text => {
+						let networks = JSON.parse(text);
+						scanning_text.hidden = true;
+						wireless_select.hidden = false;
+						wireless_select.innerHTML = "";
+
+						for (let i = 0; i < networks.length; ++i) {
+							let option = document.createElement("option");
+							option.innerHTML = networks[i].ssid;
+							wireless_select.appendChild(option);
+						}
+					});
+				});
+			}
+
+			function checkWireless (e) {
+				let wireless_box = document.getElementById("wireless_box");
+
+				let val = e.target.value;
+				let wireless = val.split(' ')[1];
+
+				if (wireless === "true") {
+					wireless_box.hidden = false;
+					scan();
+				} else {
+					wireless_box.hidden = true;
+				}
+			}
+
+			function startup () {
+				let rescan_button = document.getElementById("rescan_button");
+				rescan_button.addEventListener("click", e => {
+					e.preventDefault();
+					scan();
+				});
+
+				let interface_select = document.getElementById("network_interface");
+				interface_select.addEventListener("change", checkWireless);
+			}
+
+			window.addEventListener("load", startup);
+
+		</script>
+		<div class="columns is-centered">
+			<div class="column is-narrow">
+
+				<h1 class="title">Configure the Network</h1>
+
+				<form action="/network" method="POST">
+					<div class="field">
+						<label class="label">Pick a Network Interface</label>
+						<div class="control">
+							<div class="select">
+								<select id="network_interface" name="network_interface">
+									<option value="" selected disabled>Select...</option>
+									{% for _, network in ipairs(network_interfaces) do %}
+									<option value="{{network.name}} {{network.wireless}}">{{network.desc}} {{wireless(network.wireless)}}</option>
+									{% end %}
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="field">
+						<div id="wireless_box" hidden>
+							<hr>
+
+							<label class="label">Network:</label>
+							<div class="control">
+								<div class="label" id="scanning_text">scanning...</div>
+								<select id="wireless_select" name="network">
+								</select>
+							</div>
+
+							<label class="label">Password:</label>
+							<div class="control">
+								<input class="input" type="password" name="password" placeholder="password"></input>
+							</div>
+
+							<div class="control">
+								<button id="rescan_button">scan again</button>
+							</div>
+						</div>
+					</div>
+
+					<hr>
+
+					<div class="field">
+						<div class="control">
+							<input id="submit_button" class="button is_primary" type="submit" value="Connect">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>

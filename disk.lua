@@ -28,7 +28,7 @@ local function kern_disks()
 end
 
 local function diskinfo(dev)
-    local f = io.popen("diskinfo -v "..dev, "r")
+    local f = io.popen("diskinfo -v "..dev .. " 2>/dev/null", "r")
     local text = f:read("*a")
     f:close()
     return text

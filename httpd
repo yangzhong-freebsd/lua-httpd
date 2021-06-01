@@ -21,7 +21,7 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
-package.path = "/usr/home/yang-vm/src/lua-httpd/?.lua;" .. package.path
+package.path = "/usr/home/yang/src/lua-httpd/?.lua;" .. package.path
 
 local httpd = require("httpd")
 local template = require("template")
@@ -35,20 +35,27 @@ local keymap = require("keymap")
 local partition = require("partition")
 local service = require("service")
 local shell = require("shell")
+local network = require("network")
+
+local json = require("json")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
-local manifest = "/home/yang-vm/src/lua-httpd/MANIFEST"
+local manifest = "/home/yang/src/lua-httpd/MANIFEST"
 
-local db_file = "/home/yang-vm/src/lua-httpd/db"
+local db_file = "/home/yang/src/lua-httpd/db"
 local db = io.open(db_file, "r+")
 
-local main_page_file = assert(io.open("/home/yang-vm/src/lua-httpd/main_page.html", "r"))
+local main_page_file = assert(io.open("/home/yang/src/lua-httpd/main_page.html", "r"))
 local main_page = main_page_file:read("*all")
 main_page_file:close()
 
-local add_user_file= assert(io.open("/home/yang-vm/src/lua-httpd/add_user.html", "r"))
+local add_user_file= assert(io.open("/home/yang/src/lua-httpd/add_user.html", "r"))
 local add_user_page = add_user_file:read("*all")
 add_user_file:close()
+
+local network_file = assert(io.open("/home/yang/src/lua-httpd/network.html", "r"))
+local network_page = network_file:read("*all")
+network_file:close()
 
 function pairs_by_keys(t, f)
         local a = {}
@@ -68,6 +75,14 @@ function selected(cond)
         return cond and "selected" or ""
 end
 
+function wireless(cond)
+        return cond and "[Wireless]" or "[Wired]"
+end
+
+function disabled(cond)
+        return cond and "disabled" or ""
+end
+
 --TODO: properly credit
 function unescape (str)
         str = string.gsub (str, "+", " ")
@@ -82,6 +97,20 @@ function splitString(str, char)
                 table.insert(split_list, match)
         end
         return split_list
+end
+
+function parseRequest(body)
+        local lines = splitString(body, "&")
+        local req = {}
+
+        for i, line in ipairs(lines) do
+                local mapping = unescape(line)
+
+                local key, val = mapping:match("^([^=]+)=(.*)")
+                req[key] = val
+        end
+
+        return req
 end
 
 function parseDB()
@@ -137,6 +166,7 @@ function mainPage(request)
                 bootmethod = boot.method(),
                 disks = disk.info(),
                 distsets = distset.list(manifest),
+                network_interfaces = network.getInterfaces(),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
                 keymap_menu = keymap_menu,
@@ -147,6 +177,18 @@ function mainPage(request)
                 users = getUsers(),
         })
         return { status=200, reason="ok", body=body }
+end
+
+function networkPage(request)
+        local body = template.process(network_page,
+        {
+                theme = "cerulean", 
+                ipv4 = network.ipv4,
+                ipv6 = network.ipv6,
+                network_interfaces = network.getInterfaces(),
+        })
+
+        return { status=200, reason="ok", body = body }
 end
 
 function addUserPage(request)
@@ -174,18 +216,13 @@ function addUser(request)
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
 
-function parseRequest(body)
-        local lines = splitString(body, "&")
-        local req = {}
-
-        for i, line in ipairs(lines) do
-                local mapping = unescape(line)
-
-                local key, val = mapping:match("^([^=]+)=(.*)")
-                req[key] = val
+function connectToNetwork(request)
+        local req = parseRequest(request.body)
+        for key, val in pairs(req) do
+                print(key, val)
         end
 
-        return req
+        return { status=501, reason="Not implemented", body="TODO" }
 end
 
 
@@ -228,13 +265,21 @@ function debug_ClearDB()
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
+function scanWireless()
+        local networks = network.scanWireless()
+        return { status=200, reason="ok", body=json.encode(networks)}
+end
+
 local server = httpd.create_server("/var/log/httpd.log")
 
 server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
 server:add_route("GET", "^/adduser$", addUserPage)
+server:add_route("GET", "^/network$", networkPage)
+server:add_route("GET", "^/scanwireless$", scanWireless)
 server:add_route("GET", "^/(.*)$", mainPage)
 
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
+server:add_route("POST", "^/network$", connectToNetwork)
 server:run(true)
