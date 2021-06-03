@@ -236,6 +236,11 @@ function networkPage(request)
         return { status=200, reason="ok", body = body }
 end
 
+function checkIsWireless(request)
+        local interface = request.matches[1]
+        return {status=200, reason="ok", body=json.encode(network.isWireless(interface))}
+end
+
 function addUserPage(request)
         local body = template.process(add_user_page,
         {
@@ -266,12 +271,17 @@ function connectToNetwork(request)
         local cfg = {}
         for key, val in pairs(req) do
                 cfg[key] = val
+                print(key, val)
         end
 
         --add wired support too...
-        network.connectWireless(cfg.network, cfg.password)
+        --and dhcp, slaac stuff
+        --network.connectWireless(cfg.network, cfg.password)
+        
+        
+        db:seek("end")
 
-        return { status=501, reason="Not implemented", body="TODO" }
+        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
 
@@ -325,6 +335,7 @@ server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
 server:add_route("GET", "^/adduser$", addUserPage)
 server:add_route("GET", "^/network$", networkPage)
+server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
 server:add_route("GET", "^/scanwireless$", scanWireless)
 server:add_route("GET", "^/keymap$", keymapPage)
 server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)

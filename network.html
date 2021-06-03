@@ -35,14 +35,16 @@
 				let wireless_box = document.getElementById("wireless_box");
 
 				let val = e.target.value;
-				let wireless = val.split(' ')[1];
-
-				if (wireless === "true") {
-					wireless_box.hidden = false;
-					scan();
-				} else {
-					wireless_box.hidden = true;
-				}
+				fetch("network/iswireless/" + val).then(data => {
+					data.text().then(text => {
+						if (JSON.parse(text)) {
+							wireless_box.hidden = false;
+							scan();
+						} else {
+							wireless_box.hidden = true;
+						}
+					});
+				});
 			}
 
 			function startup () {
@@ -72,7 +74,7 @@
 								<select id="network_interface" name="network_interface">
 									<option value="" selected disabled>Select...</option>
 									{% for _, network in ipairs(network_interfaces) do %}
-									<option value="{{network.name}} {{network.wireless}}">{{network.desc}} {{wireless(network.wireless)}}</option>
+									<option value="{{network.name}}">{{network.desc}} {{wireless(network.wireless)}}</option>
 									{% end %}
 								</select>
 							</div>

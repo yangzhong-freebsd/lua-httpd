@@ -52,6 +52,16 @@ local function checkIPv4()
 	network.ipv6 = output
 end
 
+function network.isWireless(interface)
+	local wireless_interfaces = io.popen("sysctl -in net.wlan.devices"):read()
+	for _, intf in ipairs(misc.splitString(wireless_interfaces, " ")) do
+		if (interface == intf) then
+			return true
+		end
+	end
+	return false
+end
+
 function network.scanWireless() -- (interface)
 	local networks = {}
 	local one, two = os.execute("wpa_cli scan >/dev/null 2>&1")
