@@ -15,6 +15,8 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
+local misc = require("misc")
+
 local keymap = keymap or {}
 
 keymap.VT = "/usr/share/vt/keymaps"
@@ -47,5 +49,39 @@ function keymap.index(path)
     end
     return index, menu, font
 end
+
+function getXKeymaps()
+    local list = {}
+    local map = {}
+    local f = assert(io.open("/usr/local/share/X11/xkb/rules/xorg.lst", "r"))
+
+    local state = "";
+    for line in f:lines() do
+        if (line:sub(1, 1) == "!") then
+            state = line:sub(3);
+        elseif (state == "layout") then
+            local layout, desc = line:match("(%a+)%s+(.+)")
+            if (layout and desc) then
+                table.insert(list, {layout=layout, desc=desc})
+                map[layout] = {}
+            end
+        elseif (state == "variant") then
+            local variant, layout, desc = line:match("(%g+)%s+(%a+): (.+)")
+            if (layout and variant and desc) then
+                table.insert(map[layout], {variant=variant, desc=desc})
+            end
+        end
+    end
+
+    local function compareLayouts(this, other)
+        return this.desc < other.desc
+    end
+
+    table.sort(list, compareLayouts)
+    keymap.XList = list
+    keymap.XMap = map
+end
+
+getXKeymaps()
 
 return keymap

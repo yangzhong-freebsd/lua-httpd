@@ -57,6 +57,10 @@ local network_file = assert(io.open("/home/yang/src/lua-httpd/network.html", "r"
 local network_page = network_file:read("*all")
 network_file:close()
 
+local keymap_file = assert(io.open("/home/yang/src/lua-httpd/keymap.html", "r"))
+local keymap_page = keymap_file:read("*all")
+keymap_file:close()
+
 function pairs_by_keys(t, f)
         local a = {}
         for n in pairs(t) do table.insert(a, n) end
@@ -158,7 +162,6 @@ function mainPage(request)
                 lang = "en"
         end
 
-        local keymap_index, keymap_menu = keymap.index(keymap.VT)
         local body = template.process(main_page,
                 { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
                 lang = lang,
@@ -169,14 +172,56 @@ function mainPage(request)
                 network_interfaces = network.getInterfaces(),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
-                keymap_menu = keymap_menu,
-                keymap_index = keymap_index,
                 partition_styles = partition.styles,
                 service_menu = service.menu,
                 shells = shell.list,
                 users = getUsers(),
         })
         return { status=200, reason="ok", body=body }
+end
+
+
+function keymapPage(request)
+        local keymap_index, keymap_menu = keymap.index(keymap.VT)
+        local body = template.process(keymap_page,
+        {
+                lang = "en", --put this in the config eventually?
+                keymap_index = keymap_index,
+                keymap_menu = keymap_menu,
+                keymap_x_list = keymap.XList,
+                theme = "cerulean", 
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function getVariants(request)
+        local layout = request.matches[1]
+        return { status=200, reason="ok", body=json.encode(keymap.XMap[layout])}
+end
+
+function setKeymap(request)
+        local keymap = json.decode(request.body)
+        
+        if (keymap.variant == "") then
+                os.execute("setxkbmap -display :0 " .. keymap.layout)
+        else
+                os.execute("setxkbmap " .. keymap.layout .. " -variant " .. keymap.variant)
+        end
+
+      --[[
+        local keymap_file = io.open("/usr/local/etc/X11/xorg.conf.d/default_keyboard.conf", "w+")
+        keymap_file:write("Section \"InputClass\"\n")
+        keymap_file:write("\tIdentifier\t\"Default-Keyboard\"\n")
+        keymap_file:write("\tMatchIsKeyboard\t\"on\"\n")
+        keymap_file:write("\tXkbLayout\t\""..keymap.layout.."\"\n")
+        if (keymap.variant ~= "") then
+                keymap_file:write("\tXkbVariant\t\""..keymap.variant.."\"\n")
+        end
+        keymap_file:write("EndSection\n")
+        ]]--
+
+        return { status=200, reason="ok", body = keymap.layout}
 end
 
 function networkPage(request)
@@ -281,9 +326,12 @@ server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 server:add_route("GET", "^/adduser$", addUserPage)
 server:add_route("GET", "^/network$", networkPage)
 server:add_route("GET", "^/scanwireless$", scanWireless)
+server:add_route("GET", "^/keymap$", keymapPage)
+server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
 server:add_route("GET", "^/(.*)$", mainPage)
 
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/network$", connectToNetwork)
+server:add_route("POST", "^/keymap$", setKeymap)
 server:run(true)

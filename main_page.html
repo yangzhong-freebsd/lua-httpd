@@ -19,25 +19,12 @@
 
 	 <h1 class="title">Install FreeBSD</h1>
 	 
+	 <a href="/keymap">Configure your Keyboard</a>
+	 <hr>
 	 <a href="/network">Configure the Network</a>
 
         <form action="/install" method="POST">
 
-          <div class="field">
-            <label class="label">{{keymap_menu[lang]}}:</label>
-            <div class="control">
-              <div class="select">
-                <select name="keymap">
-                  {% for _, map in ipairs(keymap_index[lang]) do %}
-                    <option {{selected(map.file:find("/us.kbd$"))}}
-                      value="{{map.file}}">{{map.desc}}</option>
-                  {% end %}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <hr>
           <div class="field">
             <label class="label">Hostname:</label>
             <div class="control">
