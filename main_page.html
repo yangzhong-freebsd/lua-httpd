@@ -19,9 +19,17 @@
 
 	 <h1 class="title">Install FreeBSD</h1>
 	 
-	 <a href="/keymap">Configure your Keyboard</a>
+	 <a href="/keymap">Configure your keyboard</a>
 	 <hr>
-	 <a href="/network">Configure the Network</a>
+	 <a href="/network">Configure the network</a>
+	 <hr>
+	 <a href="/adduser">Add user</a>
+
+	 {% for _, usr in ipairs(users) do %}
+	 <p> {{usr.username}} {{usr.real_name}} {{usr.groups}} {{usr.shell}} {{usr.password}}</p>
+	 {% end %}
+	 <hr>
+
 
         <form action="/install" method="POST">
 
@@ -127,16 +135,6 @@
                 placeholder="confirm root password">
             </div>
           </div>
-
-          <hr>
-
-	  <h1 class="title" id="users">Users</h1>
-
-	  <a href="/adduser">Add User</a>
-
-	  {% for _, usr in ipairs(users) do %}
-	  <p> {{usr.username}} {{usr.real_name}} {{usr.groups}} {{usr.shell}} {{usr.password}}</p>
-	  {% end %}
 
           <hr>
 

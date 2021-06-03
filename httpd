@@ -19,9 +19,10 @@
 -- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 -- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
---
 
-package.path = "/usr/home/yang/src/lua-httpd/?.lua;" .. package.path
+local SRC_DIR = "/home/yang/src/lua-httpd/"
+
+package.path = SRC_DIR .. "?.lua;" .. package.path
 
 local httpd = require("httpd")
 local template = require("template")
@@ -40,24 +41,24 @@ local network = require("network")
 local json = require("json")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
-local manifest = "/home/yang/src/lua-httpd/MANIFEST"
+local manifest = SRC_DIR .. "MANIFEST"
 
-local db_file = "/home/yang/src/lua-httpd/db"
+local db_file = SRC_DIR .. "db"
 local db = io.open(db_file, "r+")
 
-local main_page_file = assert(io.open("/home/yang/src/lua-httpd/main_page.html", "r"))
+local main_page_file = assert(io.open(SRC_DIR .. "main_page.html", "r"))
 local main_page = main_page_file:read("*all")
 main_page_file:close()
 
-local add_user_file= assert(io.open("/home/yang/src/lua-httpd/add_user.html", "r"))
+local add_user_file= assert(io.open(SRC_DIR .. "add_user.html", "r"))
 local add_user_page = add_user_file:read("*all")
 add_user_file:close()
 
-local network_file = assert(io.open("/home/yang/src/lua-httpd/network.html", "r"))
+local network_file = assert(io.open(SRC_DIR .. "network.html", "r"))
 local network_page = network_file:read("*all")
 network_file:close()
 
-local keymap_file = assert(io.open("/home/yang/src/lua-httpd/keymap.html", "r"))
+local keymap_file = assert(io.open(SRC_DIR .. "keymap.html", "r"))
 local keymap_page = keymap_file:read("*all")
 keymap_file:close()
 
@@ -121,9 +122,7 @@ function parseDB()
         db:seek("set")
         local contents = db:read("*all")
         local lines = splitString(contents, "\n")
-        local table = {
-                users = {},
-        }
+        local table = {users = {}}
 
         for i, line in ipairs(lines) do
                 if (line:match("user:")) then --TODO make this logic better
@@ -141,21 +140,6 @@ function parseDB()
         return table
 end
 
-function getUsers()
-        local users = parseDB().users
-        local user_list = {}
-
-        for username, props in pairs(users) do
-                local user = {}
-                user.username = username
-                for key, val in pairs(props) do
-                        user[key] = val
-                end
-                table.insert(user_list, user)
-        end
-        return user_list
-end
-
 function mainPage(request)
         local lang = request.matches[1]
         if lang == "" then
@@ -169,7 +153,6 @@ function mainPage(request)
                 bootmethod = boot.method(),
                 disks = disk.info(),
                 distsets = distset.list(manifest),
-                network_interfaces = network.getInterfaces(),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
                 partition_styles = partition.styles,
@@ -182,22 +165,21 @@ end
 
 
 function keymapPage(request)
-        local keymap_index, keymap_menu = keymap.index(keymap.VT)
+        local _, keymap_menu = keymap.index(keymap.VT)
         local body = template.process(keymap_page,
         {
+                theme = "cerulean",
                 lang = "en", --put this in the config eventually?
-                keymap_index = keymap_index,
                 keymap_menu = keymap_menu,
                 keymap_x_list = keymap.XList,
-                theme = "cerulean", 
         })
 
         return { status=200, reason="ok", body = body }
 end
 
 function getVariants(request)
-        local layout = request.matches[1]
-        return { status=200, reason="ok", body=json.encode(keymap.XMap[layout])}
+        local variants = keymap.XMap[request.matches[1]]
+        return { status=200, reason="ok", body=json.encode(variants)}
 end
 
 function setKeymap(request)
@@ -224,31 +206,29 @@ function setKeymap(request)
         return { status=200, reason="ok", body = keymap.layout}
 end
 
-function networkPage(request)
-        local body = template.process(network_page,
-        {
-                theme = "cerulean", 
-                ipv4 = network.ipv4,
-                ipv6 = network.ipv6,
-                network_interfaces = network.getInterfaces(),
-        })
-
-        return { status=200, reason="ok", body = body }
-end
-
-function checkIsWireless(request)
-        local interface = request.matches[1]
-        return {status=200, reason="ok", body=json.encode(network.isWireless(interface))}
-end
-
 function addUserPage(request)
         local body = template.process(add_user_page,
         {
-                theme = "cerulean", 
+                theme = "cerulean",
                 shells = shell.list,
         })
 
         return { status=200, reason="ok", body = body }
+end
+
+function getUsers()
+        local users = parseDB().users
+        local user_list = {}
+
+        for username, props in pairs(users) do
+                local user = {}
+                user.username = username
+                for key, val in pairs(props) do
+                        user[key] = val
+                end
+                table.insert(user_list, user)
+        end
+        return user_list
 end
 
 function addUser(request)
@@ -266,6 +246,26 @@ function addUser(request)
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
 
+function networkPage(request)
+        local body = template.process(network_page,
+        {
+                theme = "cerulean",
+                network_interfaces = network.getInterfaces(),
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function checkIsWireless(request)
+        local isWireless = network.isWireless(request.matches[1])
+        return {status=200, reason="ok", body=json.encode(isWireless)}
+end
+
+function scanWireless()
+        local networks = network.scanWireless()
+        return { status=200, reason="ok", body=json.encode(networks)}
+end
+
 function connectToNetwork(request)
         local req = parseRequest(request.body)
         local cfg = {}
@@ -278,9 +278,6 @@ function connectToNetwork(request)
         --and dhcp, slaac stuff
         --network.connectWireless(cfg.network, cfg.password)
         
-        
-        db:seek("end")
-
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
@@ -322,11 +319,6 @@ function debug_ClearDB()
         io.open(db_file, "w+"):close()
         db = io.open(db_file, "r+")
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
-end
-
-function scanWireless()
-        local networks = network.scanWireless()
-        return { status=200, reason="ok", body=json.encode(networks)}
 end
 
 local server = httpd.create_server("/var/log/httpd.log")
