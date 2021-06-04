@@ -1,5 +1,5 @@
 #!/usr/libexec/flua
--- vim: set et sw=4:
+-- vim: set et:
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
@@ -38,6 +38,7 @@ local service = require("service")
 local shell = require("shell")
 local network = require("network")
 
+local misc = require("misc")
 local json = require("json")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
@@ -80,12 +81,34 @@ function selected(cond)
         return cond and "selected" or ""
 end
 
+function readonly(cond)
+        return cond and "readonly" or ""
+end
+
 function wireless(cond)
         return cond and "[Wireless]" or "[Wired]"
 end
 
 function disabled(cond)
         return cond and "disabled" or ""
+end
+
+function orEmpty(string)
+        if (string) then
+                return string
+        else
+                return ""
+        end
+       -- return string and string or ""
+end
+
+function orWheel(string)
+        if (string) then
+                return string
+        else
+                return "Wheel"
+        end
+       -- return string and string or ""
 end
 
 --TODO: properly credit
@@ -158,7 +181,7 @@ function mainPage(request)
                 partition_styles = partition.styles,
                 service_menu = service.menu,
                 shells = shell.list,
-                users = getUsers(),
+                users = getUsersAsList(),
         })
         return { status=200, reason="ok", body=body }
 end
@@ -216,7 +239,26 @@ function addUserPage(request)
         return { status=200, reason="ok", body = body }
 end
 
-function getUsers()
+function editUserPage(request)
+        local username = request.matches[1]
+
+        local userData = parseDB().users[username]
+
+        local body = template.process(add_user_page,
+        {
+                theme = "cerulean",
+                shells = shell.list,
+                username = username,
+                real_name = userData.real_name,
+                user_shell = userData.shell,
+                groups = userData.groups,
+                editing = true,
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function getUsersAsList()
         local users = parseDB().users
         local user_list = {}
 
@@ -228,13 +270,38 @@ function getUsers()
                 end
                 table.insert(user_list, user)
         end
+
+        local function compare_users(this, other)
+            return this.username < other.username
+        end
+
+        table.sort(user_list, compare_users)
+
         return user_list
+end
+
+function removeUserFromDB(username)
+        db:seek("set")
+        local text = db:read("*all")
+        db:close()
+        db = io.open(db_file, "w+")
+
+        local split_list = misc.splitString(text, "\n")
+        local user_line = "user:"..username.."." --TODO this shows us that we need some better format for the config file
+        for _, line in ipairs(split_list) do
+               if (line:sub(1, #user_line) ~= user_line) then
+                       db:write(line.."\n")
+               end
+        end
+
 end
 
 function addUser(request)
         local req = parseRequest(request.body)
 
         --TODO verify input
+
+        removeUserFromDB(req.username)
 
         db:seek("end")
 
@@ -252,12 +319,7 @@ function deleteUser(request)
         --TODO verify input
 
         --TODO maybe abstract this out
-        db:seek("set")
-        local text = db:read("*all")
-        db:close()
-        text = text:gsub("user:" ..username .. ".(.*)\n", "")
-        db = io.open(db_file, "w+")
-        db:write(text)
+        removeUserFromDB(username)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -293,7 +355,7 @@ function connectToNetwork(request)
         --add wired support too...
         --and dhcp, slaac stuff
         --network.connectWireless(cfg.network, cfg.password)
-        
+
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
@@ -342,6 +404,7 @@ local server = httpd.create_server("/var/log/httpd.log")
 server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
 server:add_route("GET", "^/adduser$", addUserPage)
+server:add_route("GET", "^/edituser/(.*)$", editUserPage)
 server:add_route("GET", "^/network$", networkPage)
 server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
 server:add_route("GET", "^/scanwireless$", scanWireless)
