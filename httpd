@@ -1,5 +1,5 @@
 #!/usr/libexec/flua
--- vim: set et:
+-- vim: set et sw=4:
 -- Minimal web server written in Lua
 --
 -- Use with inetd, no other dependencies:
@@ -246,6 +246,22 @@ function addUser(request)
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
 
+function deleteUser(request)
+        local username = request.matches[1]
+
+        --TODO verify input
+
+        --TODO maybe abstract this out
+        db:seek("set")
+        local text = db:read("*all")
+        db:close()
+        text = text:gsub("user:" ..username .. ".(.*)\n", "")
+        db = io.open(db_file, "w+")
+        db:write(text)
+
+        return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
+end
+
 function networkPage(request)
         local body = template.process(network_page,
         {
@@ -335,6 +351,7 @@ server:add_route("GET", "^/(.*)$", mainPage)
 
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
+server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
 server:add_route("POST", "^/network$", connectToNetwork)
 server:add_route("POST", "^/keymap$", setKeymap)
 server:run(true)
