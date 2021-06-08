@@ -12,8 +12,8 @@
 
 			function setLayout () {
 				let layout = document.getElementById("keymap").value;
-				let variant = document.getElementById("variants").value;
-				fetch("/keymap", {
+				let variant = document.getElementById("variant").value;
+				fetch("/setkeymap", {
 					method : 'POST',
 					body : JSON.stringify({"layout" : layout, "variant" : variant})
 				}).then(data => 
@@ -21,7 +21,7 @@
 			}
 
 			function showVariants (text) {
-				let variant_selector = document.getElementById("variants");
+				let variant_selector = document.getElementById("variant");
 				let variants = JSON.parse(text);
 
 				variant_selector.textContent = "";
@@ -53,7 +53,7 @@
 				let layout_select = document.getElementById("keymap");
 				layout_select.addEventListener("change", getVariants); 
 
-				let variant_select = document.getElementById("variants");
+				let variant_select = document.getElementById("variant");
 				variant_select.addEventListener("change", setLayout); 
 			}
 			window.addEventListener("load", startup);
@@ -62,16 +62,16 @@
 		<div class="columns is-centered">
 			<div class="column is-narrow">
 
-				<h1 class="title">Configure your Keyboard</h1>
+				<h1 class="title">Configure your keyboard</h1>
 
-				<form action="/keyboard" method="POST">
+				<form action="/writekeymap" method="POST">
 					<div class="field">
 						<label class="label">{{keymap_menu[lang]}}:</label>
 						<div class="control">
 							<div class="select">
 								<select id="keymap" name="keymap">
-									{% for _, map in ipairs(keymap_x_list) do %}
-									<option value="{{map.layout}}">{{map.desc}}</option>
+									{% for _, map in ipairs(x_list) do %}
+									<option {{selected(map.layout == selected_layout)}} value="{{map.layout}}">{{map.desc}}</option>
 									{% end %}
 								</select>
 							</div>
@@ -79,16 +79,25 @@
 					</div>
 
 					<div class="field">
-						<label class="label">Select the variant:</label>
+						<label class="label">Select a variant:</label>
 						<div class="control">
 							<div class="select">
-								<select id="variants" name="variants">
+								<select id="variant" name="variant">
+									{% for _, var in ipairs(x_variants) do %}
+									<option {{selected(var.variant == selected_variant)}} value="{{var.variant}}">{{var.desc}}</option>
+									{% end %}
 								</select>
 							</div>
 						</div>
 					</div>
 
 					<textarea placeholder="test your keyboard here..." class="textarea" rows=5 cols=40></textarea>
+
+					<div class="field">
+						<div class="control">
+							<input class="button is-primary" type="submit" value="Confirm">
+						</div>
+					</div>
 				</form>
 			</div>
 		</div>

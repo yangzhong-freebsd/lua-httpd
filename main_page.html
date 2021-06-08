@@ -65,6 +65,26 @@
 
         <form action="/install" method="POST">
 
+	<!--
+          <div class="field">
+	    <h2>Timezone</h2>
+            <label class="label">Country:</label>
+            <div class="control">
+              <div class="select is-multiple">
+                <select name="timezone">
+                  {% for code, country in pairs(timezone_countries) do %}
+                      <option value="{{code}}">
+		      	{{country.name}}
+                      </option>
+		  {% end %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+	  <hr>
+	-->
+
           <div class="field">
             <label class="label">Hostname:</label>
             <div class="control">
@@ -198,17 +218,6 @@
           </div>
 
           <hr>
-
-          <div class="field">
-            <label class="label">Setup script:</label>
-            <div class="control">
-              <textarea class="textarea" name="setup_script">
-#!/bin/sh
-# Extra commands to run in a chroot
-# before rebooting into the system
-              </textarea>
-            </div>
-          </div>
 
           <div class="field">
             <div class="control">

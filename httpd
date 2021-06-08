@@ -106,7 +106,7 @@ function orWheel(string)
         if (string) then
                 return string
         else
-                return "Wheel"
+                return "wheel"
         end
        -- return string and string or ""
 end
@@ -142,14 +142,14 @@ function parseRequest(body)
 end
 
 function parseDB()
+        local table = {users = {}}
+
         db:seek("set")
         local contents = db:read("*all")
         local lines = splitString(contents, "\n")
-        local table = {users = {}}
-
         for i, line in ipairs(lines) do
-                if (line:match("user:")) then --TODO make this logic better
-                        local username, prop, val = line:match("^[^:]+:([^.]+).([^=]+)=(.*)")
+                if (line:match("^user:")) then
+                        local username, prop, val = line:match("^[^:]+:([^:]+):([^=]+)=(.*)")
                         if (table.users[username] == nil) then
                                 table.users[username] = {}
                         end
@@ -163,103 +163,16 @@ function parseDB()
         return table
 end
 
-function mainPage(request)
-        local lang = request.matches[1]
-        if lang == "" then
-                lang = "en"
-        end
-
-        local body = template.process(main_page,
-                { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
-                lang = lang,
-                boothowto = boot.howto(),
-                bootmethod = boot.method(),
-                disks = disk.info(),
-                distsets = distset.list(manifest),
-                filesystem_formats = filesystem.formats,
-                hardening_menu = hardening.menu,
-                partition_styles = partition.styles,
-                service_menu = service.menu,
-                shells = shell.list,
-                users = getUsersAsList(),
-        })
-        return { status=200, reason="ok", body=body }
+--Writes key=val to the end of the db.
+--If key already exists in the db, we delete that line first.  
+function updateDB(key, val)
+        removeMatchesFromDB("^"..key.."$")
+        db:seek("end")
+        db:write(key.."="..val.."\n")
 end
 
-
-function keymapPage(request)
-        local _, keymap_menu = keymap.index(keymap.VT)
-        local body = template.process(keymap_page,
-        {
-                theme = "cerulean",
-                lang = "en", --put this in the config eventually?
-                keymap_menu = keymap_menu,
-                keymap_x_list = keymap.XList,
-        })
-
-        return { status=200, reason="ok", body = body }
-end
-
-function getVariants(request)
-        local variants = keymap.XMap[request.matches[1]]
-        return { status=200, reason="ok", body=json.encode(variants)}
-end
-
-function setKeymap(request)
-        local keymap = json.decode(request.body)
-
-        if (keymap.variant == "") then
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout) --This is somewhat of a hack. TODO: figure out how to do this better
-        else
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout .. " -variant " .. keymap.variant)
-        end
-
-        --[[
-        local keymap_file = io.open("/usr/local/etc/X11/xorg.conf.d/default_keyboard.conf", "w+")
-        keymap_file:write("Section \"InputClass\"\n")
-        keymap_file:write("\tIdentifier\t\"Default-Keyboard\"\n")
-        keymap_file:write("\tMatchIsKeyboard\t\"on\"\n")
-        keymap_file:write("\tXkbLayout\t\""..keymap.layout.."\"\n")
-        if (keymap.variant ~= "") then
-                keymap_file:write("\tXkbVariant\t\""..keymap.variant.."\"\n")
-        end
-        keymap_file:write("EndSection\n")
-        ]]--
-
-        return { status=200, reason="ok", body = keymap.layout}
-end
-
-function addUserPage(request)
-        local body = template.process(add_user_page,
-        {
-                theme = "cerulean",
-                shells = shell.list,
-        })
-
-        return { status=200, reason="ok", body = body }
-end
-
-function editUserPage(request)
-        local username = request.matches[1]
-
-        local userData = parseDB().users[username]
-
-        local body = template.process(add_user_page,
-        {
-                theme = "cerulean",
-                shells = shell.list,
-                username = username,
-                real_name = userData.real_name,
-                user_shell = userData.shell,
-                groups = userData.groups,
-                editing = true,
-        })
-
-        return { status=200, reason="ok", body = body }
-end
-
-function getUsersAsList()
-        local users = parseDB().users
+function getUsersAsList(parsed_db)
+        local users = parsed_db.users
         local user_list = {}
 
         for username, props in pairs(users) do
@@ -280,20 +193,130 @@ function getUsersAsList()
         return user_list
 end
 
-function removeUserFromDB(username)
+--Pass in a regex for the key, and this function will
+--remove all lines in the db with matching keys.
+function removeMatchesFromDB(regex)
         db:seek("set")
         local text = db:read("*all")
+
         db:close()
         db = io.open(db_file, "w+")
 
         local split_list = misc.splitString(text, "\n")
-        local user_line = "user:"..username.."." --TODO this shows us that we need some better format for the config file
         for _, line in ipairs(split_list) do
-               if (line:sub(1, #user_line) ~= user_line) then
+               local key = line:match("^([^=]+)")
+               if (not key:match(regex)) then
                        db:write(line.."\n")
                end
         end
+end
 
+function mainPage(request)
+        local lang = request.matches[1]
+        if lang == "" then
+                lang = "en"
+        end
+
+        local parsed_db = parseDB()
+
+        local body = template.process(main_page,
+                { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
+                lang = lang,
+                boothowto = boot.howto(),
+                bootmethod = boot.method(),
+                disks = disk.info(),
+                distsets = distset.list(manifest),
+                filesystem_formats = filesystem.formats,
+                hardening_menu = hardening.menu,
+                partition_styles = partition.styles,
+                service_menu = service.menu,
+                shells = shell.list,
+                timezone_countries = timezone.countries,
+                users = getUsersAsList(parsed_db),
+        })
+        return { status=200, reason="ok", body=body }
+end
+
+
+function keymapPage(request)
+        local parsed_db = parseDB()
+        local selected_layout = parsed_db.keymap_layout
+        local selected_variant = parsed_db.keymap_variant
+        local _, keymap_menu = keymap.index(keymap.VT)
+        local variants
+
+        if (selected_layout) then
+                variants = keymap.XMap[selected_layout]
+        else 
+                variants = {}
+        end
+
+        local body = template.process(keymap_page,
+        {
+                theme = "cerulean",
+                lang = "en", --TODO: put this in the config eventually?
+                keymap_menu = keymap_menu,
+                x_list = keymap.XList,
+                x_variants = variants,
+                selected_layout = selected_layout,
+                selected_variant = selected_variant,
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function getVariants(request)
+        local variants = keymap.XMap[request.matches[1]]
+        return { status=200, reason="ok", body=json.encode(variants)}
+end
+
+function setKeymap(request)
+        local keymap = json.decode(request.body)
+
+        if (keymap.variant == "") then
+                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout) --This is somewhat of a hack. TODO: figure out how to do this better
+        else
+                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout .. " -variant " .. keymap.variant)
+        end
+
+        return { status=200, reason="ok", body = keymap.layout}
+end
+
+function writeKeymap(request)
+        local req = parseRequest(request.body)
+        updateDB("keymap_layout", req.keymap)
+        updateDB("keymap_variant", req.variant)
+        
+        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
+end
+
+function addUserPage(request)
+        local body = template.process(add_user_page,
+        {
+                theme = "cerulean",
+                shells = shell.list,
+        })
+
+        return { status=200, reason="ok", body = body }
+end
+
+function editUserPage(request)
+        local username = request.matches[1]
+
+        local user_data = parseDB().users[username]
+
+        local body = template.process(add_user_page,
+        {
+                theme = "cerulean",
+                shells = shell.list,
+                username = username,
+                real_name = user_data.real_name,
+                user_shell = user_data.shell,
+                groups = user_data.groups,
+                editing = true,
+        })
+
+        return { status=200, reason="ok", body = body }
 end
 
 function addUser(request)
@@ -301,14 +324,10 @@ function addUser(request)
 
         --TODO verify input
 
-        removeUserFromDB(req.username)
-
-        db:seek("end")
-
-        db:write("user:" .. req.username .. ".real_name=" .. req.real_name .. "\n")
-        db:write("user:" .. req.username .. ".password=" .. req.password .. "\n")
-        db:write("user:" .. req.username .. ".groups=" .. req.groups .. "\n")
-        db:write("user:" .. req.username .. ".shell=" .. req.shell .. "\n")
+        updateDB("user:"..req.username..":real_name", req.real_name)
+        updateDB("user:"..req.username..":password", req.password)
+        updateDB("user:"..req.username..":groups", req.groups)
+        updateDB("user:"..req.username..":shell", req.shell)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -318,8 +337,7 @@ function deleteUser(request)
 
         --TODO verify input
 
-        --TODO maybe abstract this out
-        removeUserFromDB(username)
+        removeMatchesFromDB("^user:"..username)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -339,7 +357,7 @@ function checkIsWireless(request)
         return {status=200, reason="ok", body=json.encode(isWireless)}
 end
 
-function scanWireless()
+function scanWireless(request)
         local networks = network.scanWireless()
         return { status=200, reason="ok", body=json.encode(networks)}
 end
@@ -366,6 +384,7 @@ function doInstall(request)
         local distsets = ""
         local disks = ""
 
+        --[[
         local cfg = {}
 
         for i, line in ipairs(lines) do
@@ -388,6 +407,7 @@ function doInstall(request)
 
         db:write("partitions=" .. disks .. "\n")
         db:write("distributions=" .. distsets .. "\n")
+        ]]--
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
@@ -401,20 +421,26 @@ end
 
 local server = httpd.create_server("/var/log/httpd.log")
 
+--debug
 server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
+--Fetch API stuff
+server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
+server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
+server:add_route("GET", "^/scanwireless$", scanWireless)
+server:add_route("POST", "^/setkeymap$", setKeymap)
+
+--Pages
 server:add_route("GET", "^/adduser$", addUserPage)
 server:add_route("GET", "^/edituser/(.*)$", editUserPage)
 server:add_route("GET", "^/network$", networkPage)
-server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
-server:add_route("GET", "^/scanwireless$", scanWireless)
 server:add_route("GET", "^/keymap$", keymapPage)
-server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
 server:add_route("GET", "^/(.*)$", mainPage)
 
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
 server:add_route("POST", "^/network$", connectToNetwork)
-server:add_route("POST", "^/keymap$", setKeymap)
+server:add_route("POST", "^/writekeymap$", writeKeymap)
+
 server:run(true)
