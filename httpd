@@ -37,15 +37,13 @@ local partition = require("partition")
 local service = require("service")
 local shell = require("shell")
 local network = require("network")
+local db = require("db")
 
 local misc = require("misc")
 local json = require("json")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
 local manifest = SRC_DIR .. "MANIFEST"
-
-local db_file = SRC_DIR .. "db"
-local db = io.open(db_file, "r+")
 
 local main_page_file = assert(io.open(SRC_DIR .. "main_page.html", "r"))
 local main_page = main_page_file:read("*all")
@@ -141,83 +139,13 @@ function parseRequest(body)
         return req
 end
 
-function parseDB()
-        local table = {users = {}}
-
-        db:seek("set")
-        local contents = db:read("*all")
-        local lines = splitString(contents, "\n")
-        for i, line in ipairs(lines) do
-                if (line:match("^user:")) then
-                        local username, prop, val = line:match("^[^:]+:([^:]+):([^=]+)=(.*)")
-                        if (table.users[username] == nil) then
-                                table.users[username] = {}
-                        end
-                        table.users[username][prop] = val
-                else
-                        local prop, val = line:match("^([^=]+)=(.*)")
-                        table[prop] = val
-                end
-        end
-
-        return table
-end
-
---Writes key=val to the end of the db.
---If key already exists in the db, we delete that line first.  
-function updateDB(key, val)
-        removeMatchesFromDB("^"..key.."$")
-        db:seek("end")
-        db:write(key.."="..val.."\n")
-end
-
-function getUsersAsList(parsed_db)
-        local users = parsed_db.users
-        local user_list = {}
-
-        for username, props in pairs(users) do
-                local user = {}
-                user.username = username
-                for key, val in pairs(props) do
-                        user[key] = val
-                end
-                table.insert(user_list, user)
-        end
-
-        local function compare_users(this, other)
-            return this.username < other.username
-        end
-
-        table.sort(user_list, compare_users)
-
-        return user_list
-end
-
---Pass in a regex for the key, and this function will
---remove all lines in the db with matching keys.
-function removeMatchesFromDB(regex)
-        db:seek("set")
-        local text = db:read("*all")
-
-        db:close()
-        db = io.open(db_file, "w+")
-
-        local split_list = misc.splitString(text, "\n")
-        for _, line in ipairs(split_list) do
-               local key = line:match("^([^=]+)")
-               if (not key:match(regex)) then
-                       db:write(line.."\n")
-               end
-        end
-end
-
 function mainPage(request)
         local lang = request.matches[1]
         if lang == "" then
                 lang = "en"
         end
 
-        local parsed_db = parseDB()
+        local parsed_db = db:parse()
 
         local body = template.process(main_page,
                 { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
@@ -231,15 +159,14 @@ function mainPage(request)
                 partition_styles = partition.styles,
                 service_menu = service.menu,
                 shells = shell.list,
-                timezone_countries = timezone.countries,
-                users = getUsersAsList(parsed_db),
+                users = db:getUsersAsList(parsed_db),
         })
         return { status=200, reason="ok", body=body }
 end
 
 
 function keymapPage(request)
-        local parsed_db = parseDB()
+        local parsed_db = db:parse()
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
         local _, keymap_menu = keymap.index(keymap.VT)
@@ -284,8 +211,8 @@ end
 
 function writeKeymap(request)
         local req = parseRequest(request.body)
-        updateDB("keymap_layout", req.keymap)
-        updateDB("keymap_variant", req.variant)
+        db:update("keymap_layout", req.keymap)
+        db:update("keymap_variant", req.variant)
         
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
@@ -303,7 +230,7 @@ end
 function editUserPage(request)
         local username = request.matches[1]
 
-        local user_data = parseDB().users[username]
+        local user_data = db:parse().users[username]
 
         local body = template.process(add_user_page,
         {
@@ -324,10 +251,10 @@ function addUser(request)
 
         --TODO verify input
 
-        updateDB("user:"..req.username..":real_name", req.real_name)
-        updateDB("user:"..req.username..":password", req.password)
-        updateDB("user:"..req.username..":groups", req.groups)
-        updateDB("user:"..req.username..":shell", req.shell)
+        db:update("user:"..req.username..":real_name", req.real_name)
+        db:update("user:"..req.username..":password", req.password)
+        db:update("user:"..req.username..":groups", req.groups)
+        db:update("user:"..req.username..":shell", req.shell)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -337,7 +264,7 @@ function deleteUser(request)
 
         --TODO verify input
 
-        removeMatchesFromDB("^user:"..username)
+        db:removeMatches("^user:"..username)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -412,17 +339,7 @@ function doInstall(request)
         return { status=501, reason="Not implemented", body="TODO" }
 end
 
-function debug_ClearDB()
-        db:close()
-        io.open(db_file, "w+"):close()
-        db = io.open(db_file, "r+")
-        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
-end
-
 local server = httpd.create_server("/var/log/httpd.log")
-
---debug
-server:add_route("GET", "^/debug/cleardb$", debug_ClearDB)
 
 --Fetch API stuff
 server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
