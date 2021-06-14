@@ -63,7 +63,7 @@ function getXKeymaps()
             local layout, desc = line:match("(%a+)%s+(.+)")
             if (layout and desc) then
                 table.insert(list, {layout=layout, desc=desc})
-                map[layout] = {}
+                map[layout] = {{variant="", desc="(none)"}}
             end
         elseif (state == "variant") then
             local variant, layout, desc = line:match("(%g+)%s+(%a+): (.+)")

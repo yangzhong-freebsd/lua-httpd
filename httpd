@@ -170,13 +170,7 @@ function keymapPage(request)
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
         local _, keymap_menu = keymap.index(keymap.VT)
-        local variants
-
-        if (selected_layout) then
-                variants = keymap.XMap[selected_layout]
-        else 
-                variants = {}
-        end
+        local variants = keymap.XMap[selected_layout]
 
         local body = template.process(keymap_page,
         {
