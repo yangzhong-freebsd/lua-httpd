@@ -169,14 +169,12 @@ function keymapPage(request)
         local parsed_db = db:parse()
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
-        local _, keymap_menu = keymap.index(keymap.VT)
         local variants = keymap.XMap[selected_layout]
 
         local body = template.process(keymap_page,
         {
                 theme = "cerulean",
                 lang = "en", --TODO: put this in the config eventually?
-                keymap_menu = keymap_menu,
                 x_list = keymap.XList,
                 x_variants = variants,
                 selected_layout = selected_layout,
