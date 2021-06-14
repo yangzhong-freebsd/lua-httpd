@@ -83,6 +83,10 @@ function selected(cond)
         return cond and "selected" or ""
 end
 
+function checked(cond)
+        return cond and "checked" or ""
+end
+
 function readonly(cond)
         return cond and "readonly" or ""
 end
@@ -137,11 +141,12 @@ function parseRequest(body)
                 local mapping = unescape(line)
                 local key, val = mapping:match("^([^=]+)=(.*)")
 
-                --requests could possibly have multiple vals per key. Put the values into an array
+                --requests could possibly have multiple vals per key. 
+                --Since I know that these will always be for inputs
+                --that will never have space in them (currently: disks)
+                --I'll just space-separate them.
                 if (type(req[key]) == "string") then
-                       req[key] = {req[key], val}
-                elseif (type(req[key]) == "table") then
-                        table.insert(req[key], val)
+                       req[key] = req[key].." "..val
                 else
                         req[key] = val
                 end
@@ -176,11 +181,22 @@ function mainPage(request)
 end
 
 function zfsPage(request)
+        local parsed_db = db:parse()
+        local selected_disk_list = misc.splitString(parsed_db.zfs_disks, " ")
+        local selected_filesystem = parsed_db.zfs_filesystem or "ZFS:STRIPE"
+
+        local selected_disks = {}
+        for _, disk in ipairs(selected_disk_list) do
+                selected_disks[disk] = true
+        end
+
         local body = template.process(zfs_page,
         {
                 theme = "cerulean",
                 disks = disk.info(),
-                filesystem_formats = filesystem.zfs_formats
+                filesystem_formats = filesystem.zfs_formats,
+                selected_disks = selected_disks,
+                selected_filesystem = selected_filesystem,
         })
 
         return { status=200, reason="ok", body = body }
@@ -189,10 +205,7 @@ end
 function setZFS(request)
         local req = parseRequest(request.body)
 
-        local disks = ""
-        for _, disk in ipairs(req.disk) do
-                disks = disk .. " " .. disks
-        end
+        local disks = req.disk
 
         db:update("zfs_filesystem", req.filesystem)
         db:update("zfs_disks", disks)

@@ -59,7 +59,7 @@
 					{% for dev, info in pairs_by_keys(disks) do %}
 						<div class="field">
 							<div class="control">
-								<input type="checkbox" value="{{dev}}" name="disk">
+								<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
 									{{dev}}:
 									{{info["Disk descr."]}}
 									({{info["mediasize in bytes human"]}})
@@ -76,7 +76,7 @@
 							<div class="select">
 								<select name="filesystem" id="filesystem">
 									{% for _, fs in pairs(filesystem_formats) do %}
-										<option {{selected(fs.default)}} value="{{fs.value}}">
+										<option {{selected(fs.value == selected_filesystem)}} value="{{fs.value}}">
 											{{fs.title}}
 											{{fs.min_disks > 1 and "(needs "..fs.min_disks.." disks)" or ""}}
 										</option>
