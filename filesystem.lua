@@ -61,4 +61,31 @@ filesystem.formats = {
     },
 }
 
+filesystem.zfs_formats = {
+    {
+        title = "Stripe",
+        value = "ZFS:STRIPE",
+        default = true,
+        min_disks = 1,
+    },
+    {
+        title = "Mirror",
+        value = "ZFS:MIRROR",
+        default = false,
+        min_disks = 2,
+    },
+    {
+        title = "RAID-Z1",
+        value = "ZFS:RAIDZ1",
+        default = false,
+        min_disks = 3,
+    },
+    {
+        title = "RAID-Z2",
+        value = "ZFS:RAIDZ2",
+        default = false,
+        min_disks = 4,
+    },
+}
+
 return filesystem

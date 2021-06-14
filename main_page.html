@@ -23,6 +23,8 @@
 	 <hr>
 	 <a href="/network">Configure the network</a>
 	 <hr>
+	 <a href="/zfs">Configure ZFS</a>
+	 <hr>
 	 <table>
 		 <thead>
 			 <tr>
@@ -86,25 +88,6 @@
                       </option>
                     {% end
                   end %}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <hr>
-
-          <div class="field">
-            <label class="label">Disk selection:</label>
-            <div class="control">
-              <div class="select is-multiple">
-                <select multiple size="8" name="disks">
-                  {% for dev, info in pairs_by_keys(disks) do %}
-                    <option value="{{dev}}">
-                        {{dev}}:
-                        {{info["Disk descr."]}}
-                        ({{info["mediasize in bytes human"]}})
-                    </option>
-                  {% end %}
                 </select>
               </div>
             </div>

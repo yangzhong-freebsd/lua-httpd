@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Install FreeBSD</title>
+		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+			<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
+	</head>
+	<body>
+		<script>
+
+			function updateInfo() {
+				let disks = document.getElementById("disks");
+				let filesystem = document.getElementById("filesystem").value;
+				let disk_list = document.getElementsByName("disk");
+				let submit_button = document.getElementById("submit");
+				disk_list = [...disk_list].filter(opt => opt.checked).map(opt => opt.value);
+
+				console.log(filesystem);
+				console.log(disk_list);
+
+				switch (filesystem) {
+					case "ZFS:STRIPE":
+						submit_button.disabled = disk_list.length < 1;
+						break;
+					case "ZFS:MIRROR":
+						submit_button.disabled = disk_list.length < 2;
+						break;
+					case "ZFS:RAIDZ1":
+						submit_button.disabled = disk_list.length < 3;
+						break;
+					case "ZFS:RAIDZ2":
+						submit_button.disabled = disk_list.length < 4;
+						break;
+				}
+
+			}
+			function startup () {
+
+				let disk_checkboxes = document.getElementsByName("disk");
+				disk_checkboxes.forEach(box => {
+					box.addEventListener("change", updateInfo);
+				});
+				let filesystem = document.getElementById("filesystem");
+				filesystem.addEventListener("change", updateInfo);
+			}
+			window.addEventListener("load", startup);
+
+		</script>
+		<div class="columns is-centered">
+			<div class="column is-narrow">
+
+				<h1 class="title">Partition Disks: ZFS</h1>
+
+				<form action="/zfs" method="POST">
+
+					<label class="label">Pick the disks to use for FreeBSD:</label>
+					{% for dev, info in pairs_by_keys(disks) do %}
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="{{dev}}" name="disk">
+									{{dev}}:
+									{{info["Disk descr."]}}
+									({{info["mediasize in bytes human"]}})
+								</input>
+							</div>
+						</div>
+					{% end %}
+					
+					<hr>
+
+					<div class="field">
+						<label class="label">Filesystem:</label>
+						<div class="control">
+							<div class="select">
+								<select name="filesystem" id="filesystem">
+									{% for _, fs in pairs(filesystem_formats) do %}
+										<option {{selected(fs.default)}} value="{{fs.value}}">
+											{{fs.title}}
+											{{fs.min_disks > 1 and "(needs "..fs.min_disks.." disks)" or ""}}
+										</option>
+									{% end %}
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<hr>
+
+					<p name="info"></p>
+
+					<div class="field">
+						<div class="control">
+							<input class="button is-primary" id="submit" type="submit" value="Confirm">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>
