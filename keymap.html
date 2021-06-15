@@ -26,11 +26,6 @@
 
 				variant_selector.textContent = "";
 
-				let default_option = document.createElement("option");
-				default_option.value = "";
-				default_option.innerHTML = "(none)";
-				variant_selector.appendChild(default_option);
-
 				for (let i = 0; i < variants.length; ++i) {
 					let option = document.createElement("option");
 					option.value = variants[i].variant;
