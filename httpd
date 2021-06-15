@@ -37,6 +37,7 @@ local partition = require("partition")
 local service = require("service")
 local shell = require("shell")
 local network = require("network")
+local lang = require("lang")
 local db = require("db")
 
 local misc = require("misc")
@@ -64,6 +65,10 @@ keymap_file:close()
 local zfs_file = assert(io.open(SRC_DIR .. "zfs.html", "r"))
 local zfs_page = zfs_file:read("*all")
 zfs_file:close()
+
+local language_file = assert(io.open(SRC_DIR .. "lang.html", "r"))
+local language_page = language_file:read("*all")
+language_file:close()
 
 function pairs_by_keys(t, f)
         local a = {}
@@ -156,16 +161,14 @@ function parseRequest(body)
 end
 
 function mainPage(request)
-        local lang = request.matches[1]
-        if lang == "" then
-                lang = "en"
-        end
-
         local parsed_db = db:parse()
+
+        local cur_lang = parsed_db.installer_language
 
         local body = template.process(main_page,
                 { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
-                lang = lang,
+                cur_lang = cur_lang,
+                lang = lang.translations,
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
                 disks = disk.info(),
@@ -180,10 +183,26 @@ function mainPage(request)
         return { status=200, reason="ok", body=body }
 end
 
+function languagePage(request)
+        local parsed_db = db:parse()
+        local cur_lang = parsed_db.installer_language
+
+        local body = template.process(language_page,
+        {
+                cur_lang = cur_lang,
+                lang = lang.translations,
+                language_list = lang.languages,
+        })
+
+        return { status=200, reason="ok", body=body }
+end
+
 function zfsPage(request)
+
         local parsed_db = db:parse()
         local selected_disk_list = misc.splitString(parsed_db.zfs_disks, " ")
         local selected_filesystem = parsed_db.zfs_filesystem or "ZFS:STRIPE"
+        local cur_lang = parsed_db.installer_language
 
         local selected_disks = {}
         for _, disk in ipairs(selected_disk_list) do
@@ -192,6 +211,8 @@ function zfsPage(request)
 
         local body = template.process(zfs_page,
         {
+                cur_lang = cur_lang,
+                lang = lang.translations,
                 theme = "cerulean",
                 disks = disk.info(),
                 filesystem_formats = filesystem.zfs_formats,
@@ -213,16 +234,25 @@ function setZFS(request)
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
+function setLanguage(request)
+        local req = parseRequest(request.body)
+
+        db:update("installer_language", req.language)
+
+        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
+end
+
 function keymapPage(request)
         local parsed_db = db:parse()
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
         local variants = keymap.XMap[selected_layout]
+        local cur_lang = parsed_db.installer_language
 
         local body = template.process(keymap_page,
         {
                 theme = "cerulean",
-                lang = "en", --TODO: put this in the config eventually?
+                lang = cur_lang, --TODO fix this
                 x_list = keymap.XList,
                 x_variants = variants,
                 selected_layout = selected_layout,
@@ -388,14 +418,16 @@ server:add_route("GET", "^/scanwireless$", scanWireless)
 server:add_route("POST", "^/setkeymap$", setKeymap)
 
 --Pages
+server:add_route("GET", "^/language$", languagePage)
 server:add_route("GET", "^/zfs$", zfsPage)
 server:add_route("GET", "^/adduser$", addUserPage)
-server:add_route("GET", "^/edituser/(.*)$", editUserPage)
+server:add_route("GET", "^/edituser$", editUserPage)
 server:add_route("GET", "^/network$", networkPage)
 server:add_route("GET", "^/keymap$", keymapPage)
-server:add_route("GET", "^/(.*)$", mainPage)
+server:add_route("GET", "^/$", mainPage)
 
 server:add_route("POST", "^/zfs$", setZFS)
+server:add_route("POST", "^/setlanguage", setLanguage)
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
