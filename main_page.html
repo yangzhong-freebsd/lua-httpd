@@ -1,197 +1,154 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Install FreeBSD</title>
-    <link rel="stylesheet" href="/style">
-  </head>
-  <body>
-  <script>
-	function startup () {
-		console.log("testing");
-	}
-	window.addEventListener("load", startup);
-  </script>
-    <div class="columns is-centered">
-      <div class="column is-narrow">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Install FreeBSD</title>
+		<link rel="stylesheet" href="/style">
+	</head>
+	<body>
+		<script>
+			function startup () {
+				console.log("testing");
+			}
+			window.addEventListener("load", startup);
+		</script>
+		<div class="columns is-centered">
+			<div class="column is-narrow">
 
-	 <h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
-	 
-	 <a href="/language">{{lang["Change language"][cur_lang]}}</a>
+				<h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
 
-	 <div class="category-box">
-		 <p>Keymap: {{keymap_string}}</p>
-		 <a href="/keymap">Change</a>
-	 </div>
-	 <div class="category-box">
-		 <a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
-	 </div>
-	 <div class="category-box">
-		 <a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
-	 </div>
-	 <div class="category-box">
-		 <table>
-			 <thead>
-				 <tr>
-					 <td>Username</td>
-					 <td>Full name</td>
-					 <td>Groups</td>
-					 <td>Shells</td>
-					 <td>Password</td>
-					 <td></td>
-					 <td></td>
-				 </tr>
-			 </thead>
-			 <tbody>
-				 {% for _, usr in ipairs(users) do %}
-				 <tr>
-					 <td>{{usr.username}}</td>
-					 <td>{{usr.real_name}}</td>
-					 <td>{{usr.groups}}</td>
-					 <td>{{usr.shell}}</td>
-					 <td>{{usr.password}}</td>
-					 <td><a href="/edituser/{{usr.username}}">Edit</a></td>
-					 <td>
-						 <form action="/deleteuser/{{usr.username}}" method="POST">
-							 <input name="test" hidden></input> <!-- TODO: fix forms so that I can have empty submissions -->
-							 <button type="submit">Delete</button>
-						 </form>
-					 </td>
-				 </tr>
-				 {% end %}
-			 </tbody>
-		 </table>
-		 <a href="/adduser">Add user</a>
-	 </div>
+				<a href="/language">{{lang["Change language"][cur_lang]}}</a>
 
-        <form action="/install" method="POST">
+				<div class="category-box">
+					<p>{{lang["Keymap:"][cur_lang]}} {{keymap_string}}</p>
+					<a href="/keymap">Change</a>
+				</div>
+				<div class="category-box">
+					<p>whatever</p>
+					<a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+				</div>
+				<div class="category-box">
+					<p>{{disk_string}}</p>
+					<a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+				</div>
+				<div class="category-box">
+					<table>
+						<thead>
+							<tr>
+								<td>{{lang["Username"][cur_lang]}}</td>
+								<td>{{lang["Full name"][cur_lang]}}</td>
+								<td>{{lang["Groups"][cur_lang]}}</td>
+								<td>{{lang["Shell"][cur_lang]}}</td>
+								<td>{{lang["Password"][cur_lang]}}</td>
+								<td></td>
+								<td></td>
+							</tr>
+						</thead>
+						<tbody>
+							{% for _, usr in ipairs(users) do %}
+								<tr>
+									<td>{{usr.username}}</td>
+									<td>{{usr.real_name}}</td>
+									<td>{{usr.groups}}</td>
+									<td>{{usr.shell}}</td>
+									<td>{{usr.password}}</td>
+									<td><a href="/edituser/{{usr.username}}">{{lang["Edit"][cur_lang]}}</a></td>
+									<td>
+										<form action="/deleteuser/{{usr.username}}" method="POST">
+											<input name="test" hidden></input> <!-- TODO: fix forms so that I can have empty submissions -->
+											<button type="submit">{{lang["Delete"][cur_lang]}}</button>
+										</form>
+									</td>
+								</tr>
+							{% end %}
+						</tbody>
+					</table>
+					<a href="/adduser">Add user</a>
+				</div>
 
-	 <div class="category-box">
-          <div class="field">
-            <label class="label">Hostname:</label>
-            <div class="control">
-              <input class="input" type="text" name="hostname" value="freebsd">
-            </div>
-          </div>
-	 </div>
+				<form action="/install" method="POST">
 
-	 <div class="category-box">
-          <div class="field">
-            <label class="label">Extra distsets:</label>
-            <div class="control">
-              <div class="select is-multiple">
-                <select multiple size="8" name="distsets">
-                  {% for _, dist in ipairs(distsets) do
-                    if dist.name ~= "base" and dist.name ~= "kernel" then %}
-                      <option {{selected(dist.sele)}} value="{{dist.file}}">
-                        {{dist.desc}} {{dist.sele and "*" or ""}}
-                      </option>
-                    {% end
-                  end %}
-                </select>
-              </div>
-            </div>
-          </div>
-	 </div>
+					<div class="category-box">
+						<div class="field">
+							<label class="label">Hostname:</label>
+							<div class="control">
+								<input class="input" type="text" name="hostname" value="freebsd">
+							</div>
+						</div>
+					</div>
 
-<!--
-          <div class="field">
-            <label class="label">Partitioning:</label>
-            <div class="control">
-              <div class="select">
-                <select name="partitioning">
-                  {% for _, style in ipairs(partition_styles) do %}
-                    <option value="{{style.value}}"
-                      {{selected(style.prefer(bootmethod))}}>
-                      {{style.title}}
-                      {{style.prefer(bootmethod) and "*" or ""}}
-                    </option>
-                  {% end %}
-                </select>
-              </div>
-            </div>
-          </div>
+					<div class="category-box">
+						<div class="field">
+							<label class="label">Extra distsets:</label>
+							<div class="control">
+								<div class="select is-multiple">
+									<select multiple size="8" name="distsets">
+										{% for _, dist in ipairs(distsets) do
+											if dist.name ~= "base" and dist.name ~= "kernel" then %}
+												<option {{selected(dist.sele)}} value="{{dist.file}}">
+													{{dist.desc}} {{dist.sele and "*" or ""}}
+												</option>
+											{% end
+										end %}
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
 
-          <div class="field">
-            <label class="label">Filesystem:</label>
-            <div class="control">
-              <div class="select">
-                <select name="filesystem">
-                  {% for _, fs in ipairs(filesystem_formats) do %}
-                    <option value="{{fs.value}}"
-                      {{selected(fs.default)}}>
-                      {{fs.title}}
-                      {{fs.default and "*" or ""}}
-                    </option>
-                  {% end %}
-                </select>
-              </div>
-            </div>
-            <div class="control">
-              <label class="checkbox">
-                <input type="checkbox" name="geli">
-                  GELI encryption (uses root password)
-                </input>
-              </label>
-            </div>
-          </div>
+					<div class="category-box">
+						<div class="field">
+							<label class="label">Root password:</label>
+							<div class="control">
+								<input class="input" type="password" name="root_password"
+								placeholder="root password">
+							</div>
+							<label class="label">Confirm root password:</label>
+							<div class="control">
+								<input class="input" type="password" name="confirm_root_password"
+								placeholder="confirm root password">
+							</div>
+						</div>
+					</div>
 
-	  <hr>
--->
+					<div class="category-box">
+						<div class="field">
+							<label class="label">Enabled services:</label>
+							{% for _, svc in ipairs(service_menu) do %}
+								<div class="control">
+									<label class="checkbox">
+										<input type="checkbox" name="{{svc.name}}"
+											{{svc.default and "checked" or ""}}>
+											{{svc.description}}
+										</input>
+									</label>
+								</div>
+							{% end %}
+						</div>
 
-	 <div class="category-box">
-          <div class="field">
-            <label class="label">Root password:</label>
-            <div class="control">
-              <input class="input" type="password" name="root_password"
-                placeholder="root password">
-            </div>
-            <label class="label">Confirm root password:</label>
-            <div class="control">
-              <input class="input" type="password" name="confirm_root_password"
-                placeholder="confirm root password">
-            </div>
-          </div>
-	 </div>
+						<div class="field">
+							<label class="label">Security hardening:</label>
+							{% for _, item in ipairs(hardening_menu) do %}
+								<div class="control">
+									<label class="checkbox">
+										<input type="checkbox" name="{{item.name}}">
+											{{item.description}}
+										</input>
+									</label>
+								</div>
+							{% end %}
+						</div>
+					</div>
 
-	 <div class="category-box">
-          <div class="field">
-            <label class="label">Enabled services:</label>
-            {% for _, svc in ipairs(service_menu) do %}
-              <div class="control">
-                <label class="checkbox">
-                  <input type="checkbox" name="{{svc.name}}"
-                    {{svc.default and "checked" or ""}}>
-                    {{svc.description}}
-                  </input>
-                </label>
-              </div>
-            {% end %}
-          </div>
+					<div class="field">
+						<div class="control">
+							<input class="button is-primary" type="submit" value="Apply">
+						</div>
+					</div>
 
-          <div class="field">
-            <label class="label">Security hardening:</label>
-            {% for _, item in ipairs(hardening_menu) do %}
-              <div class="control">
-                <label class="checkbox">
-                  <input type="checkbox" name="{{item.name}}">
-                    {{item.description}}
-                  </input>
-                </label>
-              </div>
-            {% end %}
-          </div>
-	 </div>
-
-          <div class="field">
-            <div class="control">
-              <input class="button is-primary" type="submit" value="Apply">
-            </div>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </body>
+				</form>
+			</div>
+		</div>
+	</body>
 </html>

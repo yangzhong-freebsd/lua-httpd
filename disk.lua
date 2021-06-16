@@ -57,4 +57,9 @@ function disk.info()
     return disks
 end
 
+--TODO: make this use the real disk names
+function disk.prettyPrintDisks(disk_str)
+        return disk_str
+end
+
 return disk

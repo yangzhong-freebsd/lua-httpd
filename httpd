@@ -179,6 +179,7 @@ function mainPage(request)
                 { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
                 cur_lang = cur_lang,
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
+                disk_string = disk.prettyPrintDisks(parsed_db.zfs_disks),
                 lang = lang.translations,
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
