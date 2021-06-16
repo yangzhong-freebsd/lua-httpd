@@ -202,7 +202,8 @@ function languagePage(request)
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
-                language_list = lang.languages,
+                language_list = lang.language_list,
+                languages = lang.languages,
         })
 
         return { status=200, reason="ok", body=body }
@@ -211,7 +212,8 @@ end
 function zfsPage(request)
 
         local parsed_db = db:parse()
-        local selected_disk_list = misc.splitString(parsed_db.zfs_disks, " ")
+        local selected_disks = parsed_db.zfs_disks or ""
+        local selected_disk_list = misc.splitString(selected_disks, " ")
         local selected_filesystem = parsed_db.zfs_filesystem or "ZFS:STRIPE"
         local cur_lang = parsed_db.installer_language
 
@@ -250,6 +252,10 @@ function setLanguage(request)
 
         db:update("installer_language", req.language)
 
+        --TODO: set more defaults based on language selection
+        db:updateIfUnset("keymap_layout", lang.languages[req.language].keymap_layout)
+        db:updateIfUnset("keymap_variant", lang.languages[req.language].keymap_variant)
+
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
@@ -257,7 +263,7 @@ function keymapPage(request)
         local parsed_db = db:parse()
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
-        local variants = keymap.XMap[selected_layout]
+        local variants = keymap.XMap[selected_layout] or {}
         local cur_lang = parsed_db.installer_language
 
         local body = template.process(keymap_page,

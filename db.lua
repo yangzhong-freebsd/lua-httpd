@@ -25,6 +25,7 @@ local db = {}
 
 local misc = require("misc")
 
+--TODO: either put this into db, or change : into .
 local db_filename = SRC_DIR .. "db"
 local db_file = io.open(db_filename, "r+")
 
@@ -58,6 +59,16 @@ function db:update(key, val)
         db_file:write(key.."="..val.."\n")
 end
 
+
+--TODO maybe make this faster? it's looping through db twice currently
+--Only writes key=val to db if either key doesn't exist, or
+--if val is "".
+function db:updateIfUnset(key, val)
+        local parsed_db = db:parse()
+        if (not parsed_db[key] or parsed_db[key] == "") then
+                db:update(key, val)
+        end
+end
 function db:getUsersAsList(parsed_db)
         local users = parsed_db.users
         local user_list = {}
