@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Install FreeBSD</title>
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
+    <link rel="stylesheet" href="/style">
   </head>
   <body>
   <script>
@@ -20,64 +19,65 @@
 	 <h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
 	 
 	 <a href="/language">{{lang["Change language"][cur_lang]}}</a>
-	 <hr>
-	 <a href="/keymap">{{lang["Configure your keyboard"][cur_lang]}}</a>
-	 <hr>
-	 <a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
-	 <hr>
-	 <a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
-	 <hr>
-	 <table>
-		 <thead>
-			 <tr>
-				 <th>Users</th>
-			 </tr>
-		 </thead>
-		 <tbody>
-			 <tr>
-				 <td>Username</td>
-				 <td>Full name</td>
-				 <td>Groups</td>
-				 <td>Shells</td>
-				 <td>Password</td>
-				 <td></td>
-				 <td></td>
-			 </tr>
-			 {% for _, usr in ipairs(users) do %}
-			 <tr>
-				 <td>{{usr.username}}</td>
-				 <td>{{usr.real_name}}</td>
-				 <td>{{usr.groups}}</td>
-				 <td>{{usr.shell}}</td>
-				 <td>{{usr.password}}</td>
-				 <td><a href="/edituser/{{usr.username}}">Edit</a></td>
-				 <td>
-					 <form action="/deleteuser/{{usr.username}}" method="POST">
-						 <input name="test" hidden></input> <!-- TODO: fix forms so that I can have empty submissions -->
-						 <button type="submit">Delete</button>
-					 </form>
-				 </td>
 
-			 </tr>
-			 {% end %}
-		 </tbody>
-	 </table>
-	 <a href="/adduser">Add user</a>
+	 <div class="category-box">
+		 <p>Keymap: {{keymap_string}}</p>
+		 <a href="/keymap">Change</a>
+	 </div>
+	 <div class="category-box">
+		 <a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+	 </div>
+	 <div class="category-box">
+		 <a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+	 </div>
+	 <div class="category-box">
+		 <table>
+			 <thead>
+				 <tr>
+					 <td>Username</td>
+					 <td>Full name</td>
+					 <td>Groups</td>
+					 <td>Shells</td>
+					 <td>Password</td>
+					 <td></td>
+					 <td></td>
+				 </tr>
+			 </thead>
+			 <tbody>
+				 {% for _, usr in ipairs(users) do %}
+				 <tr>
+					 <td>{{usr.username}}</td>
+					 <td>{{usr.real_name}}</td>
+					 <td>{{usr.groups}}</td>
+					 <td>{{usr.shell}}</td>
+					 <td>{{usr.password}}</td>
+					 <td><a href="/edituser/{{usr.username}}">Edit</a></td>
+					 <td>
+						 <form action="/deleteuser/{{usr.username}}" method="POST">
+							 <input name="test" hidden></input> <!-- TODO: fix forms so that I can have empty submissions -->
+							 <button type="submit">Delete</button>
+						 </form>
+					 </td>
 
-	 <hr>
-
+				 </tr>
+				 {% end %}
+			 </tbody>
+		 </table>
+		 <a href="/adduser">Add user</a>
+	 </div>
 
         <form action="/install" method="POST">
 
+	 <div class="category-box">
           <div class="field">
             <label class="label">Hostname:</label>
             <div class="control">
               <input class="input" type="text" name="hostname" value="freebsd">
             </div>
           </div>
+	 </div>
 
-          <hr>
-
+	 <div class="category-box">
           <div class="field">
             <label class="label">Extra distsets:</label>
             <div class="control">
@@ -94,9 +94,10 @@
               </div>
             </div>
           </div>
+	 </div>
 
-          <hr>
 
+<!--
           <div class="field">
             <label class="label">Partitioning:</label>
             <div class="control">
@@ -139,7 +140,9 @@
           </div>
 
 	  <hr>
+-->
 
+	 <div class="category-box">
           <div class="field">
             <label class="label">Root password:</label>
             <div class="control">
@@ -152,9 +155,10 @@
                 placeholder="confirm root password">
             </div>
           </div>
+	 </div>
 
-          <hr>
 
+	 <div class="category-box">
           <div class="field">
             <label class="label">Enabled services:</label>
             {% for _, svc in ipairs(service_menu) do %}
@@ -181,8 +185,8 @@
               </div>
             {% end %}
           </div>
+	 </div>
 
-          <hr>
 
           <div class="field">
             <div class="control">

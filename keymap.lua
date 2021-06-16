@@ -50,6 +50,15 @@ function keymap.index(path)
     return index, menu, font
 end
 
+function keymap.prettyPrint(layout, variant)
+        --TODO: use full names
+        if (variant ~= "") and variant then
+                return layout .. " - " .. variant
+        else
+                return layout
+        end
+end
+
 function getXKeymaps()
     local list = {}
     local map = {}

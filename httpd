@@ -46,6 +46,10 @@ local json = require("json")
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
 local manifest = SRC_DIR .. "MANIFEST"
 
+local stylesheet_file = assert(io.open(SRC_DIR .. "style.css", "r"))
+local stylesheet = stylesheet_file:read("*all")
+stylesheet_file:close()
+
 local main_page_file = assert(io.open(SRC_DIR .. "main_page.html", "r"))
 local main_page = main_page_file:read("*all")
 main_page_file:close()
@@ -160,14 +164,21 @@ function parseRequest(body)
         return req
 end
 
+function getStylesheet()
+        return { status=200, reason="ok", body=stylesheet }
+end
+
 function mainPage(request)
         local parsed_db = db:parse()
 
         local cur_lang = parsed_db.installer_language
+        local keymap_layout = parsed_db.keymap_layout
+        local keymap_variant = parsed_db.keymap_variant
 
         local body = template.process(main_page,
                 { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
                 cur_lang = cur_lang,
+                keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
                 lang = lang.translations,
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
@@ -252,7 +263,7 @@ function keymapPage(request)
         local body = template.process(keymap_page,
         {
                 theme = "cerulean",
-                lang = cur_lang, --TODO fix this
+                cur_lang = cur_lang,
                 x_list = keymap.XList,
                 x_variants = variants,
                 selected_layout = selected_layout,
@@ -381,35 +392,12 @@ function doInstall(request)
         local distsets = ""
         local disks = ""
 
-        --[[
-        local cfg = {}
-
-        for i, line in ipairs(lines) do
-                local mapping = unescape(line)
-
-                local key, val = mapping:match("^([^=]+)=(.*)")
-                if (key == "distsets") then
-                        distsets = val .. " " .. distsets
-                elseif (key == "disks") then
-                        disks = val .. " " .. disks
-                else
-                        cfg[key] = val
-                end
-        end
-
-        db:seek("end")
-        for key, val in pairs(cfg) do
-                db:write(key .. "=" .. val .. "\n") 
-        end
-
-        db:write("partitions=" .. disks .. "\n")
-        db:write("distributions=" .. distsets .. "\n")
-        ]]--
-
         return { status=501, reason="Not implemented", body="TODO" }
 end
 
 local server = httpd.create_server("/var/log/httpd.log")
+
+server:add_route("GET", "^/style$", getStylesheet)
 
 --Fetch API stuff
 server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
