@@ -1,0 +1,15 @@
+body {
+	background-color:lightblue;
+}
+
+table {
+	table-layout:fixed;
+	border-collapse:collapse;
+	width:100%;
+}
+
+.category-box {
+	background-color:white;
+	margin-top:10px;
+	margin-bottom:10px;
+}
