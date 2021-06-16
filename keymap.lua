@@ -50,6 +50,14 @@ function keymap.index(path)
     return index, menu, font
 end
 
+function keymap.setKeymap(layout, variant)
+        if (variant == "") then
+                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. layout) --This is somewhat of a hack. TODO: figure out how to do this better
+        else
+                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. layout .. " -variant " .. variant)
+        end
+end
+
 function keymap.prettyPrint(layout, variant)
         --TODO: use full names
         if (variant ~= "") and variant then

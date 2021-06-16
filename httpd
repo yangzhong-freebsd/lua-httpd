@@ -253,8 +253,16 @@ function setLanguage(request)
         db:update("installer_language", req.language)
 
         --TODO: set more defaults based on language selection
-        db:updateIfUnset("keymap_layout", lang.languages[req.language].keymap_layout)
-        db:updateIfUnset("keymap_variant", lang.languages[req.language].keymap_variant)
+        local keymap_layout = lang.languages[req.language].keymap_layout
+        local keymap_variant = lang.languages[req.language].keymap_variant
+
+        local parsed_db = db:parse()
+
+        if (not parsed_db.keymap_layout or parsed_db.keymap_layout == "") then
+                keymap.setKeymap(keymap_layout, keymap_variant)
+                db:update("keymap_layout", keymap_layout)
+                db:update("keymap_variant", keymap_variant)
+        end
 
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
@@ -285,15 +293,11 @@ function getVariants(request)
 end
 
 function setKeymap(request)
-        local keymap = json.decode(request.body)
+        local map = json.decode(request.body)
 
-        if (keymap.variant == "") then
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout) --This is somewhat of a hack. TODO: figure out how to do this better
-        else
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. keymap.layout .. " -variant " .. keymap.variant)
-        end
+        keymap.setKeymap(map.layout, map.variant)
 
-        return { status=200, reason="ok", body = keymap.layout}
+        return { status=200, reason="ok", body = map.layout}
 end
 
 function writeKeymap(request)
