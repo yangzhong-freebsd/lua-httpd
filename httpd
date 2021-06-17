@@ -74,7 +74,7 @@ local language_file = assert(io.open(SRC_DIR .. "lang.html", "r"))
 local language_page = language_file:read("*all")
 language_file:close()
 
-function pairs_by_keys(t, f)
+function pairsByKeys(t, f)
         local a = {}
         for n in pairs(t) do table.insert(a, n) end
         table.sort(a, f)
@@ -169,14 +169,14 @@ function getStylesheet()
 end
 
 function mainPage(request)
-        local parsed_db = db:parse()
+        local parsed_db = db.parse()
 
         local cur_lang = parsed_db.installer_language
         local keymap_layout = parsed_db.keymap_layout
         local keymap_variant = parsed_db.keymap_variant
 
         local body = template.process(main_page,
-                { theme = "cerulean", -- "darkly", -- NB: the Bulmaswatch themes are broken atm
+                {
                 cur_lang = cur_lang,
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
                 disk_string = disk.prettyPrintDisks(parsed_db.zfs_disks),
@@ -190,20 +190,19 @@ function mainPage(request)
                 partition_styles = partition.styles,
                 service_menu = service.menu,
                 shells = shell.list,
-                users = db:getUsersAsList(parsed_db),
+                users = db.getUsersAsList(parsed_db),
         })
         return { status=200, reason="ok", body=body }
 end
 
 function languagePage(request)
-        local parsed_db = db:parse()
+        local parsed_db = db.parse()
         local cur_lang = parsed_db.installer_language
 
         local body = template.process(language_page,
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
-                language_list = lang.language_list,
                 languages = lang.languages,
         })
 
@@ -212,7 +211,7 @@ end
 
 function zfsPage(request)
 
-        local parsed_db = db:parse()
+        local parsed_db = db.parse()
         local selected_disks = parsed_db.zfs_disks or ""
         local selected_disk_list = misc.splitString(selected_disks, " ")
         local selected_filesystem = parsed_db.zfs_filesystem or "ZFS:STRIPE"
@@ -227,7 +226,6 @@ function zfsPage(request)
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
-                theme = "cerulean",
                 disks = disk.info(),
                 filesystem_formats = filesystem.zfs_formats,
                 selected_disks = selected_disks,
@@ -242,8 +240,8 @@ function setZFS(request)
 
         local disks = req.disk
 
-        db:update("zfs_filesystem", req.filesystem)
-        db:update("zfs_disks", disks)
+        db.update("zfs_filesystem", req.filesystem)
+        db.update("zfs_disks", disks)
 
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
@@ -251,25 +249,25 @@ end
 function setLanguage(request)
         local req = parseRequest(request.body)
 
-        db:update("installer_language", req.language)
+        db.update("installer_language", req.language)
 
         --TODO: set more defaults based on language selection
         local keymap_layout = lang.languages[req.language].keymap_layout
         local keymap_variant = lang.languages[req.language].keymap_variant
 
-        local parsed_db = db:parse()
+        local parsed_db = db.parse()
 
         if (not parsed_db.keymap_layout or parsed_db.keymap_layout == "") then
                 keymap.setKeymap(keymap_layout, keymap_variant)
-                db:update("keymap_layout", keymap_layout)
-                db:update("keymap_variant", keymap_variant)
+                db.update("keymap_layout", keymap_layout)
+                db.update("keymap_variant", keymap_variant)
         end
 
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
 function keymapPage(request)
-        local parsed_db = db:parse()
+        local parsed_db = db.parse()
         local selected_layout = parsed_db.keymap_layout
         local selected_variant = parsed_db.keymap_variant
         local variants = keymap.XMap[selected_layout] or {}
@@ -277,7 +275,6 @@ function keymapPage(request)
 
         local body = template.process(keymap_page,
         {
-                theme = "cerulean",
                 cur_lang = cur_lang,
                 x_list = keymap.XList,
                 x_variants = variants,
@@ -303,8 +300,8 @@ end
 
 function writeKeymap(request)
         local req = parseRequest(request.body)
-        db:update("keymap_layout", req.keymap)
-        db:update("keymap_variant", req.variant)
+        db.update("keymap_layout", req.keymap)
+        db.update("keymap_variant", req.variant)
         
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
@@ -312,7 +309,6 @@ end
 function addUserPage(request)
         local body = template.process(add_user_page,
         {
-                theme = "cerulean",
                 shells = shell.list,
         })
 
@@ -322,11 +318,10 @@ end
 function editUserPage(request)
         local username = request.matches[1]
 
-        local user_data = db:parse().users[username]
+        local user_data = db.parse().users[username]
 
         local body = template.process(add_user_page,
         {
-                theme = "cerulean",
                 shells = shell.list,
                 username = username,
                 full_name = user_data.full_name,
@@ -343,10 +338,10 @@ function addUser(request)
 
         --TODO verify input
 
-        db:update("user:"..req.username..":full_name", req.full_name)
-        db:update("user:"..req.username..":password", req.password)
-        db:update("user:"..req.username..":groups", req.groups)
-        db:update("user:"..req.username..":shell", req.shell)
+        db.update("user:"..req.username..":full_name", req.full_name)
+        db.update("user:"..req.username..":password", req.password)
+        db.update("user:"..req.username..":groups", req.groups)
+        db.update("user:"..req.username..":shell", req.shell)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -356,7 +351,7 @@ function deleteUser(request)
 
         --TODO verify input
 
-        db:removeMatches("^user:"..username..":")
+        db.removeMatches("^user:"..username..":")
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end
@@ -364,7 +359,6 @@ end
 function networkPage(request)
         local body = template.process(network_page,
         {
-                theme = "cerulean",
                 network_interfaces = network.getInterfaces(),
         })
 

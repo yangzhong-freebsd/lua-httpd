@@ -25,11 +25,10 @@ local db = {}
 
 local misc = require("misc")
 
---TODO: either put this into db, or change : into .
 local db_filename = SRC_DIR .. "db"
 local db_file = io.open(db_filename, "r+")
 
-function db:parse()
+function db.parse()
         local table = {users = {}}
 
         db_file:seek("set")
@@ -53,8 +52,8 @@ end
 
 --Writes key=val to the end of the db.
 --If key already exists in the db, we delete that line first.  
-function db:update(key, val)
-        db:removeMatches("^"..key.."$")
+function db.update(key, val)
+        db.removeMatches("^"..key.."$")
         db_file:seek("end")
         db_file:write(key.."="..val.."\n")
 end
@@ -63,13 +62,13 @@ end
 --TODO maybe make this faster? it's looping through db twice currently
 --Only writes key=val to db if either key doesn't exist, or
 --if val is "".
-function db:updateIfUnset(key, val)
-        local parsed_db = db:parse()
+function db.updateIfUnset(key, val)
+        local parsed_db = db.parse()
         if (not parsed_db[key] or parsed_db[key] == "") then
-                db:update(key, val)
+                db.update(key, val)
         end
 end
-function db:getUsersAsList(parsed_db)
+function db.getUsersAsList(parsed_db)
         local users = parsed_db.users
         local user_list = {}
 
@@ -93,7 +92,7 @@ end
 
 --Pass in a regex for the key, and this function will
 --remove all lines in the db with matching keys.
-function db:removeMatches(regex)
+function db.removeMatches(regex)
         db_file:seek("set")
         local text = db_file:read("*all")
 

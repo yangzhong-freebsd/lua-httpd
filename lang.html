@@ -25,8 +25,8 @@
 						<div class="control">
 							<div class="select">
 								<select id="language" name="language">
-									{% for _, l in ipairs(language_list) do %}
-									<option {{selected(l == cur_lang)}} value="{{l}}">{{languages[l].name}}</option>
+									{% for code, l in pairsByKeys(languages) do %}
+									<option {{selected(code == cur_lang)}} value="{{code}}">{{l.name}}</option>
 									{% end %}
 								</select>
 							</div>

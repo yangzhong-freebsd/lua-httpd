@@ -42,11 +42,6 @@ lang.translations = {
 }
 
 --TODO: add other defaults (keymap, locale, etc) to each language
-lang.language_list = {
-        "en",
-        "fr",
-        "jp",
-}
 
 lang.languages = {
         en = {

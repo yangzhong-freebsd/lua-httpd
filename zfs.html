@@ -56,7 +56,7 @@
 				<form action="/zfs" method="POST">
 
 					<label class="label">Pick the disks to use for FreeBSD:</label>
-					{% for dev, info in pairs_by_keys(disks) do %}
+					{% for dev, info in pairsByKeys(disks) do %}
 						<div class="field">
 							<div class="control">
 								<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
