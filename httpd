@@ -329,7 +329,7 @@ function editUserPage(request)
                 theme = "cerulean",
                 shells = shell.list,
                 username = username,
-                real_name = user_data.real_name,
+                full_name = user_data.full_name,
                 user_shell = user_data.shell,
                 groups = user_data.groups,
                 editing = true,
@@ -343,7 +343,7 @@ function addUser(request)
 
         --TODO verify input
 
-        db:update("user:"..req.username..":real_name", req.real_name)
+        db:update("user:"..req.username..":full_name", req.full_name)
         db:update("user:"..req.username..":password", req.password)
         db:update("user:"..req.username..":groups", req.groups)
         db:update("user:"..req.username..":shell", req.shell)
@@ -356,7 +356,7 @@ function deleteUser(request)
 
         --TODO verify input
 
-        db:removeMatches("^user:"..username)
+        db:removeMatches("^user:"..username..":")
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }
 end

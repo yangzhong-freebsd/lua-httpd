@@ -34,7 +34,7 @@ function db:parse()
 
         db_file:seek("set")
         local contents = db_file:read("*all")
-        local lines = splitString(contents, "\n")
+        local lines = misc.splitString(contents, "\n")
         for i, line in ipairs(lines) do
                 if (line:match("^user:")) then
                         local username, prop, val = line:match("^[^:]+:([^:]+):([^=]+)=(.*)")
