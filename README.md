@@ -3,7 +3,8 @@
 ## Setup
 
 For testing purposes, I have the server running on an already-installed
-system. To set this up (as you can see, it's currently very rough):
+system. I would suggest not to set this up on an important computer as the
+server runs as root. To set up (as you can see, it's currently very rough):
 
 Clone this repository, and make an empty file named `db` in it.
 
