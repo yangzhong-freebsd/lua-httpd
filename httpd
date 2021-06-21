@@ -384,19 +384,21 @@ function connectToNetwork(request)
                 print(key, val)
         end
 
-        --add wired support too...
-        --and dhcp, slaac stuff
-        --network.connectWireless(cfg.network, cfg.password)
+        --TODO: add wired support and dhcp, slaac
 
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
 
 function doInstall(request)
-        local lines = splitString(request.body, "&")
+        local req = parseRequest(request.body)
+        for key, val in pairs(req) do
+                print(key, val)
+        end
 
-        local distsets = ""
-        local disks = ""
+        db.update("hostname", req.hostname)
+        db.update("root_password", req.root_password)
+        db.update("distsets", req.distsets)
 
         return { status=501, reason="Not implemented", body="TODO" }
 end

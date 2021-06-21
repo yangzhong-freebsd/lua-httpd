@@ -8,6 +8,10 @@ table {
 	width:100%;
 }
 
+p {
+	margin:0;
+}
+
 .category-box {
 	background-color:white;
 	margin-top:10px;

@@ -1,3 +1,29 @@
+# Experimental FreeBSD Installer
+
+## Setup
+
+For testing purposes, I have the server running on an already-installed
+system. To set this up (as you can see, it's currently very rough):
+
+Clone this repository, and make an empty file named `db` in it.
+
+Configure inetd, then restart it:
+`/etc/inetd.conf`
+```conf
+http    stream  tcp     nowait  root    {location of this repository}/httpd      httpd
+```
+
+Prepare the log file:
+```sh
+touch /var/log/httpd.log
+```
+
+Finally, edit the files `httpd` and `db.lua`: change the value of the variable
+`SRC_DIR` to be the path to this repository, with the trailing slash.
+
+Now you should be able to go to localhost on your browser and use the installer
+frontend!
+
 # Pure Lua httpd
 
 ## Name
