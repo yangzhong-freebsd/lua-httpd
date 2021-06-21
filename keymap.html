@@ -3,9 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Install FreeBSD</title>
-		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
-			<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
+		<title>{{lang["Install FreeBSD"][cur_lang]}}</title>
+		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
 		<script>
@@ -57,15 +56,15 @@
 		<div class="columns is-centered">
 			<div class="column is-narrow">
 
-				<h1 class="title">Configure your keyboard</h1>
+				<h1 class="title">{{lang["Configure your keyboard"][cur_lang]}}</h1>
 
 				<form action="/writekeymap" method="POST">
 					<div class="field">
-						<label class="label">Choose your keyboard layout:</label>
+						<label class="label">{{lang["Select a keyboard layout:"][cur_lang]}}</label>
 						<div class="control">
 							<div class="select">
 								<select id="keymap" name="keymap">
-									<option value="" selected disabled>Select...</option>
+									<option value="" selected disabled>{{lang["Select..."][cur_lang]}}</option>
 
 									{% for _, map in ipairs(x_list) do %}
 									<option {{selected(map.layout == selected_layout)}} value="{{map.layout}}">{{map.desc}}</option>
@@ -92,7 +91,7 @@
 
 					<div class="field">
 						<div class="control">
-							<input class="button is-primary" type="submit" value="Confirm">
+							<button class="is-primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
 						</div>
 					</div>
 				</form>

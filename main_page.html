@@ -3,16 +3,10 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Install FreeBSD</title>
+		<title>{{lang["Install FreeBSD"][cur_lang]}}</title>
 		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
-		<script>
-			function startup () {
-				console.log("testing");
-			}
-			window.addEventListener("load", startup);
-		</script>
 		<div class="columns is-centered">
 			<div class="column is-narrow">
 
@@ -22,10 +16,9 @@
 
 				<div class="category-box">
 					<p>{{lang["Keymap:"][cur_lang]}} {{keymap_string}}</p>
-					<a href="/keymap">Change</a>
+					<a href="/keymap">{{lang["Change"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
-					<p>whatever</p>
 					<a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
@@ -64,14 +57,14 @@
 							{% end %}
 						</tbody>
 					</table>
-					<a href="/adduser">Add user</a>
+					<a href="/adduser">{{lang["Add user"][cur_lang]}}</a>
 				</div>
 
 				<form action="/install" method="POST">
 
 					<div class="category-box">
 						<div class="field">
-							<label class="label">Hostname:</label>
+							<label class="label">{{lang["Hostname:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="text" name="hostname" value="freebsd">
 							</div>
@@ -80,7 +73,7 @@
 
 					<div class="category-box">
 						<div class="field">
-							<label class="label">Extra distsets:</label>
+							<label class="label">{{lang["Extra distsets:"][cur_lang]}}</label>
 							<div class="control">
 								<div class="select is-multiple">
 									<select multiple size="8" name="distsets">
@@ -99,15 +92,15 @@
 
 					<div class="category-box">
 						<div class="field">
-							<label class="label">Root password:</label>
+							<label class="label">{{lang["Root password:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="password" name="root_password"
-								placeholder="root password">
+								placeholder="{{lang["enter password..."][cur_lang]}}">
 							</div>
-							<label class="label">Confirm root password:</label>
+							<label class="label">{{lang["Confirm root password:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="password" name="confirm_root_password"
-								placeholder="confirm root password">
+								placeholder="{{lang["confirm password..."][cur_lang]}}">
 							</div>
 						</div>
 					</div>
@@ -144,7 +137,7 @@
 
 					<div class="field">
 						<div class="control">
-							<input class="button is-primary" type="submit" value="Apply">
+							<button class="is-primary" type="submit">{{lang["Install"][cur_lang]}}</button>
 						</div>
 					</div>
 

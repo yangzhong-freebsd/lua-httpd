@@ -18,26 +18,91 @@
 local lang = lang or {}
 
 lang.translations = {
+        ["Add user"] = {
+                en = "Add user",
+        },
+        ["Change"] = {
+                en = "Change",
+        },
+        ["Change language"] = {
+                en = "Change language",
+        },
+        ["Choosing a language also allows the installer to pick reasonable default options."] = {
+                en = "Choosing a language also allows the installer to pick reasonable default options.",
+        },
+        ["Configure the network"] = {
+                en = "Configure the network",
+        },
+        ["Configure your keyboard"] = {
+                en = "Configure your keyboard",
+        },
+        ["Configure ZFS"] = {
+                en = "Configure ZFS",
+        },
+        ["Confirm"] = {
+                en = "Confirm",
+        },
+        ["confirm password..."] = {
+                en = "confirm password...",
+        },
+        ["Confirm root password:"] = {
+                en = "Confirm root password:",
+        },
+        ["Delete"] = {
+                en = "Delete",
+        },
+        ["Edit"] = {
+                en = "Edit",
+        },
+        ["enter password..."] = {
+                en = "enter password...",
+        },
+        ["Extra distsets:"] = {
+                en = "Extra distsets:",
+        },
+        ["Full name"] = {
+                en = "Full name",
+        },
+        ["Groups"] = {
+                en = "Groups",
+        },
+        ["Hostname:"] = {
+                en = "Hostname:",
+        },
+        ["Install"] = {
+                en = "Install",
+        },
         ["Install FreeBSD"] = {
                 en = "Install FreeBSD",
                 fr = "Installer FreeBSD",
                 jp = "FreeBSDのインストール"
         },
-        ["Change language"] = {
-                en = "Change language",
+        ["Keymap:"] = {
+                en = "Keymap:",
         },
-        ["Configure your keyboard"] = {
-                en = "Configure your keyboard",
-        },
-        ["Configure the network"] = {
-                en = "Configure the network",
-        },
-        ["Configure ZFS"] = {
-                en = "Configure ZFS",
-        },
-
         ["Partition Disks: ZFS"] = {
                 en = "Partition Disks: ZFS",
+        },
+        ["Password"] = {
+                en = "Password",
+        },
+        ["Root password:"] = {
+                en = "Root password:",
+        },
+        ["Select..."] = {
+                en = "Select...",
+        },
+        ["Select a keyboard layout:"] = {
+                en = "Select a keyboard layout:",
+        },
+        ["Select installer language"] = {
+                en = "Select installer language",
+        },
+        ["Shell"] = {
+                en = "Shell",
+        },
+        ["Username"] = {
+                en = "Username",
         },
 }
 

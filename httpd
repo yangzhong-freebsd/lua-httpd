@@ -276,6 +276,7 @@ function keymapPage(request)
         local body = template.process(keymap_page,
         {
                 cur_lang = cur_lang,
+                lang = lang.translations,
                 x_list = keymap.XList,
                 x_variants = variants,
                 selected_layout = selected_layout,

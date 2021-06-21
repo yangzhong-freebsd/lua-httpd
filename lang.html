@@ -3,22 +3,14 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Install FreeBSD</title>
-		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
-			<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
+		<title>{{lang["Install FreeBSD"][cur_lang]}}</title>
+		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
-		<script>
-			function startup () {
-				console.log("testing");
-			}
-			window.addEventListener("load", startup);
-
-		</script>
 		<div class="columns is-centered">
 			<div class="column is-narrow">
 
-				<h1 class="title">Select installer language</h1>
+				<h1 class="title">{{lang["Select installer language"][cur_lang]}}</h1>
 
 				<form action="/setlanguage" method="POST">
 					<div class="field">
@@ -33,16 +25,14 @@
 						</div>
 					</div>
 
-					<hr>
-
 					<div class="field">
 						<div class="control">
-							<input class="button is-primary" type="submit" value="Confirm">
+							<button class="is-primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
 						</div>
 					</div>
 				</form>
 
-				<p>Setting the language also allows the installer to pick reasonable default options, but you can easily override these.</p>
+				<p>{{lang["Choosing a language also allows the installer to pick reasonable default options."][cur_lang]}}</p>
 			</div>
 		</div>
 	</body>
