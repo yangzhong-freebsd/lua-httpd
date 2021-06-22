@@ -15,6 +15,8 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
+local XAUTHORITY = "/home/yang/.Xauthority"
+
 local misc = require("misc")
 
 local keymap = keymap or {}
@@ -52,9 +54,9 @@ end
 
 function keymap.setKeymap(layout, variant)
         if (variant == "") then
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. layout) --This is a hack. TODO: figure out how to do this better
+                os.execute("XAUTHORITY="..XAUTHORITY.." setxkbmap -display :0 " .. layout) --This is a hack. TODO: figure out how to do this better
         else
-                os.execute("XAUTHORITY=/home/yang/.Xauthority setxkbmap -display :0 " .. layout .. " -variant " .. variant)
+                os.execute("XAUTHORITY="..XAUTHORITY.." setxkbmap -display :0 " .. layout .. " -variant " .. variant)
         end
 end
 

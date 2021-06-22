@@ -20,7 +20,8 @@ touch /var/log/httpd.log
 ```
 
 Finally, edit the files `httpd` and `db.lua`: change the value of the variable
-`SRC_DIR` to be the path to this repository, with the trailing slash.
+`SRC_DIR` to be the path to this repository, with the trailing slash. Also, edit
+`keymap.lua`: change `XAUTHORITY` to point at your .Xauthority file.
 
 Now you should be able to go to localhost on your browser and use the installer
 frontend!
