@@ -24,7 +24,8 @@ function main()
 	outfile:write("echo '"..parsed_db.root_password.."' | pw usermod root -h 0\n")
 
 	for _, user in ipairs(users) do
-		outfile:write("echo '"..user.password.."' | pw useradd -n "..user.username.." -c '"..user.full_name.."' -s "..user.shell.." -m -h 0\n")
+		local groups = user.groups:gsub(" ", ",")
+		outfile:write("echo '"..user.password.."' | pw useradd -n "..user.username.." -c '"..user.full_name.."' -s "..user.shell.." -G "..groups.." -m -h 0\n")
 	end
 end
 
