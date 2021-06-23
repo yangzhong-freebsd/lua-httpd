@@ -64,22 +64,22 @@ filesystem.formats = {
 filesystem.zfs_formats = {
     {
         title = "Stripe",
-        value = "ZFS:STRIPE",
+        value = "stripe",
         min_disks = 1,
     },
     {
         title = "Mirror",
-        value = "ZFS:MIRROR",
+        value = "mirror",
         min_disks = 2,
     },
     {
         title = "RAID-Z1",
-        value = "ZFS:RAIDZ1",
+        value = "raidz1",
         min_disks = 3,
     },
     {
         title = "RAID-Z2",
-        value = "ZFS:RAIDZ2",
+        value = "raidz2",
         min_disks = 4,
     },
 }

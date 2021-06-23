@@ -21,16 +21,16 @@
 				console.log(disk_list);
 
 				switch (filesystem) {
-					case "ZFS:STRIPE":
+					case "stripe":
 						submit_button.disabled = disk_list.length < 1;
 						break;
-					case "ZFS:MIRROR":
+					case "mirror":
 						submit_button.disabled = disk_list.length < 2;
 						break;
-					case "ZFS:RAIDZ1":
+					case "raidz1":
 						submit_button.disabled = disk_list.length < 3;
 						break;
-					case "ZFS:RAIDZ2":
+					case "raidz2":
 						submit_button.disabled = disk_list.length < 4;
 						break;
 				}

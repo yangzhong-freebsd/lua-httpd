@@ -214,7 +214,7 @@ function zfsPage(request)
         local parsed_db = db.parse()
         local selected_disks = parsed_db.zfs_disks or ""
         local selected_disk_list = misc.splitString(selected_disks, " ")
-        local selected_filesystem = parsed_db.zfs_filesystem or "ZFS:STRIPE"
+        local selected_filesystem = parsed_db.zfs_filesystem or "stripe"
         local cur_lang = parsed_db.installer_language
 
         local selected_disks = {}
