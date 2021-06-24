@@ -107,7 +107,7 @@ function network.connectWireless(network, password)
     wpa_sup:write("}\n")
     wpa_sup:close()
 
-    os.execute("wpa_cli reconfigure")
+    os.execute("wpa_cli reconfigure >/dev/null 2>&1")
 end
 
 checkIPv4()

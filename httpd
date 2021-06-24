@@ -377,7 +377,7 @@ function scanWireless(request)
 end
 
 function connectToNetwork(request)
-        local req = parseRequest(request.body)
+        local req = json.decode(request.body)
         local cfg = {}
         for key, val in pairs(req) do
                 cfg[key] = val
@@ -385,8 +385,11 @@ function connectToNetwork(request)
         end
 
         --TODO: add wired support and dhcp, slaac
+        network.connectWireless(req.network, req.password)
+        db.update("network", req.network)
+        db.update("network_password", req.password)
 
-        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
+        return { status=200, reason="ok", body = "okay"}
 end
 
 
@@ -412,6 +415,7 @@ server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
 server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
 server:add_route("GET", "^/scanwireless$", scanWireless)
 server:add_route("POST", "^/setkeymap$", setKeymap)
+server:add_route("POST", "^/network$", connectToNetwork)
 
 --Pages
 server:add_route("GET", "^/language$", languagePage)
@@ -427,7 +431,6 @@ server:add_route("POST", "^/setlanguage", setLanguage)
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
-server:add_route("POST", "^/network$", connectToNetwork)
 server:add_route("POST", "^/writekeymap$", writeKeymap)
 
 server:run(true)

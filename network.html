@@ -31,6 +31,17 @@
 				});
 			}
 
+			function connect() {
+				let network = document.getElementById("wireless_select").value;
+				let password = document.getElementById("password").value;
+				fetch("/network", {
+					method : "POST",
+					body : JSON.stringify({"network" : network, "password" : password}) 
+				}).then(data => {
+					data.text().then(console.log); //TODO clean up, make continue button that depends on connection
+				});
+			}
+
 			function checkWireless (e) {
 				let wireless_box = document.getElementById("wireless_box");
 
@@ -52,6 +63,12 @@
 				rescan_button.addEventListener("click", e => {
 					e.preventDefault();
 					scan();
+				});
+
+				let connect_button = document.getElementById("connect_button");
+				connect_button.addEventListener("click", e => {
+					e.preventDefault();
+					connect();
 				});
 
 				let interface_select = document.getElementById("network_interface");
@@ -97,7 +114,7 @@
 
 							<label class="label">Password:</label>
 							<div class="control">
-								<input class="input" type="password" name="password" placeholder="password"></input>
+								<input class="input" type="password" name="password" id="password" placeholder="password"></input>
 							</div>
 
 						</div>
@@ -107,7 +124,7 @@
 
 					<div class="field">
 						<div class="control">
-							<input id="submit_button" class="button is_primary" type="submit" value="Connect">
+							<button id="connect_button">Connect</button>
 						</div>
 					</div>
 				</form>
