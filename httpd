@@ -401,7 +401,7 @@ function doInstall(request)
 
         db.update("hostname", req.hostname)
         db.update("root_password", req.root_password)
-        db.update("distsets", "kernel.txz base.txz " ..req.distsets) --TODO: make this better, this is just for testing
+        db.update("distsets", "kernel.txz base.txz " .. (req.distsets or "")) --TODO: make this better, this is just for testing
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
