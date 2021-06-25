@@ -20,12 +20,18 @@
 					document.getElementById("submitbutton").disabled = true;
 				}
 			}
+			function checkUsername (e) {
+				//TODO write this function.
+			}
 			function startup () {
 				let password = document.getElementById("password");
-				let confirm_password = document.getElementById("confirm_password");
+				password.addEventListener("input", checkPassword);
 
-				password.addEventListener("keyup", checkPassword);
-				confirm_password.addEventListener("keyup", checkPassword);
+				let confirm_password = document.getElementById("confirm_password");
+				confirm_password.addEventListener("input", checkPassword);
+
+				let username = document.getElementById("username");
+				username.addEventListener("input", checkUsername);
 			}
 			window.addEventListener("load", startup);
 
@@ -40,8 +46,8 @@
 					<div class="field">
 						<label class="label">Username:</label>
 						<div class="control">
-							<input class="input" type="text" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
-							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$"> <!-- TODO Make a better regex -->
+							<input class="input" type="text" id = "username" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
+							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$">
 						</div>
 					</div>
 
