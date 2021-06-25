@@ -60,14 +60,8 @@ function keymap.setKeymap(layout, variant)
         end
 end
 
-function keymap.prettyPrint(layout, variant)
-        --TODO: use full names
-        if (variant ~= "") and variant then
-                return layout .. " - " .. variant
-        else
-                return layout
-        end
-end
+--keymap.XList = {{layout, desc}, ...}
+--keymap.XMap = {layout = {{variant, desc}, ...}, ...}
 
 function getXKeymaps()
     local list = {}
@@ -99,6 +93,30 @@ function getXKeymaps()
     table.sort(list, compareLayouts)
     keymap.XList = list
     keymap.XMap = map
+end
+
+function keymap.prettyPrint(layout, variant)
+        local layout_desc, variant_desc
+
+        for _, map in ipairs(keymap.XList) do
+                if (map.layout == layout) then
+                        layout_desc = map.desc
+                        variant_desc = keymap.XMap[layout].desc
+                        break
+                end
+        end
+        for _, var in ipairs(keymap.XMap[layout]) do
+                if (var.variant == variant) then
+                        variant_desc = var.desc
+                        break
+                end
+        end
+
+        if (variant ~= "") and variant then
+                return layout_desc .. " - " .. variant_desc
+        else
+                return layout_desc
+        end
 end
 
 getXKeymaps()
