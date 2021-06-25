@@ -1,8 +1,12 @@
 # Experimental FreeBSD Installer
 
+Building on the work of [lua-httpd](https://gitlab.com/freqlabs/lua-httpd/-/tree/freebsd-install).
+
 ## Setup
 
-For testing purposes, I have the server running on an already-installed
+The easiest way to try out the installer is to use the [Live ISO builder](https://github.com/yangzhong-freebsd/ISO) that has the installer pre-configured in it.
+
+Or, for testing purposes, I have the server running on an already-installed
 system. I would suggest not to set this up on an important computer as the
 server runs as root. To set up (as you can see, it's currently very rough):
 
@@ -26,6 +30,7 @@ Finally, edit the files `httpd` and `db.lua`: change the value of the variable
 Now you should be able to go to localhost on your browser and use the installer
 frontend!
 
+<!--
 # Pure Lua httpd
 
 ## Name
@@ -65,3 +70,4 @@ chown www /var/log/httpd.log
 
 I didn't feel like cross-compiling a bunch of stuff for a MIPS router I
 have.  It has Lua interpreter on it, and I like Lua, so I wrote this.
+-->
