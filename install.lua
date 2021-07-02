@@ -11,7 +11,7 @@ function main()
 
 	local users = db.getUsersAsList(parsed_db)
 
-	outfile:write("DISTRIBUTIONS=\""..parsed_db.distsets.."\"\n")
+	outfile:write("PACKAGES=\"kernel base\"")
 	outfile:write("export ZFSBOOT_VDEV_TYPE="..parsed_db.zfs_filesystem.."\n")
 	outfile:write("export ZFSBOOT_DISKS=\""..parsed_db.zfs_disks.."\"\n")
 	outfile:write("export nonInteractive=\"YES\"\n")
