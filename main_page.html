@@ -72,18 +72,42 @@
 					</div>
 
 					<div class="category-box">
-						<label class="label">{{lang["Extra distsets:"][cur_lang]}}</label>
-						{% for _, dist in ipairs(distsets) do
-							if dist.name ~= "base" and dist.name ~= "kernel" then %}
-							<div class="field">
-								<div class="control">
-									<input type="checkbox" value="{{dist.file}}" name="distsets" {{checked(dist.sele)}}>
-										{{dist.desc}} {{dist.sele and "*" or ""}}
-									</input>
-								</div>
+						<label class="label">Packages:<label>
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="kernel" name="packages" checked>
+									Kernel
+								</input>
 							</div>
-							{% end
-						end %}
+						</div>
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="base" name="packages" checked>
+									Base
+								</input>
+							</div>
+						</div>
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="debug" name="packages">
+									Debug
+								</input>
+							</div>
+						</div>
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="lib32" name="packages">
+									Lib32
+								</input>
+							</div>
+						</div>
+						<div class="field">
+							<div class="control">
+								<input type="checkbox" value="development" name="packages">
+									Development
+								</input>
+							</div>
+						</div>
 					</div>
 
 					<div class="category-box">

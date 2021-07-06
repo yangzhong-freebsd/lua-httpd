@@ -29,7 +29,6 @@ local template = require("template")
 
 local boot = require("boot")
 local disk = require("disk")
-local distset = require("distset")
 local filesystem = require("filesystem")
 local hardening = require("hardening")
 local keymap = require("keymap")
@@ -184,7 +183,6 @@ function mainPage(request)
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
                 disks = disk.info(),
-                distsets = distset.list(manifest),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
                 partition_styles = partition.styles,
@@ -401,7 +399,7 @@ function doInstall(request)
 
         db.update("hostname", req.hostname)
         db.update("root_password", req.root_password)
-        db.update("distsets", "kernel.txz base.txz " .. (req.distsets or "")) --TODO: make this better, this is just for testing
+        db.update("packages", req.packages)
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
