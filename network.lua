@@ -84,30 +84,17 @@ function network.scanWireless() -- (interface)
     return networks
 end
 
+function network.status()
+    return os.execute("wpa_cli status")
+end
+
 function network.connectWireless(network, password)
-    local wpa_sup_path = "/etc/wpa_supplicant.conf"
-    local wpa_sup = io.open(wpa_sup_path, "w+")
-
-    wpa_sup:write("ctrl_interface=/var/run/wpa_supplicant\n")
-    wpa_sup:write("eapol_version=2\n")
-    wpa_sup:write("ap_scan=1\n")
-    wpa_sup:write("fast_reauth=1\n")
-
-    wpa_sup:write("network={\n")
-    wpa_sup:write("\tpriority=0\n")
-    wpa_sup:write("\tkey_mgmt=NONE\n")
-    wpa_sup:write("}\n")
-
-    --TODO support things other than PSK
-    wpa_sup:write("network={\n")
-    wpa_sup:write("\tssid=\""..network.."\"\n")
-    wpa_sup:write("\tscan_ssid=0\n")
-    wpa_sup:write("\tpsk=\""..password.."\"\n")
-    wpa_sup:write("\tpriority=5\n")
-    wpa_sup:write("}\n")
-    wpa_sup:close()
-
-    os.execute("wpa_cli reconfigure >/dev/null 2>&1")
+    os.execute("wpa_cli remove_network 0") --TODO refine
+    os.execute("wpa_cli add_network")
+    os.execute("echo 'set_network 0 ssid \""..network.."\"' | wpa_cli")
+    os.execute("echo 'set_network 0 psk \""..password.."\"' | wpa_cli")
+    os.execute("wpa_cli select_network 0")
+    os.execute("wpa_cli reconnect")
 end
 
 checkIPv4()

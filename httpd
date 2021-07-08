@@ -369,6 +369,11 @@ function checkIsWireless(request)
         return {status=200, reason="ok", body=json.encode(isWireless)}
 end
 
+function getNetworkStatus(request)
+        local status = network.status()
+        return { status=200, reason="ok", body=status}
+end
+
 function scanWireless(request)
         local networks = network.scanWireless()
         return { status=200, reason="ok", body=json.encode(networks)}
@@ -412,6 +417,7 @@ server:add_route("GET", "^/style$", getStylesheet)
 server:add_route("GET", "^/keymap/variants/(.*)$", getVariants)
 server:add_route("GET", "^/network/iswireless/(.*)$", checkIsWireless)
 server:add_route("GET", "^/scanwireless$", scanWireless)
+server:add_route("GET", "^/networkstatus$", getNetworkStatus)
 server:add_route("POST", "^/setkeymap$", setKeymap)
 server:add_route("POST", "^/network$", connectToNetwork)
 

@@ -42,6 +42,14 @@
 				});
 			}
 
+			function getStatus (e) {
+				fetch("networkstatus").then(data => {
+					data.text().then(text => {
+						console.log(text);
+					});
+				});
+			}
+
 			function checkWireless (e) {
 				let wireless_box = document.getElementById("wireless_box");
 
@@ -73,6 +81,12 @@
 
 				let interface_select = document.getElementById("network_interface");
 				interface_select.addEventListener("change", checkWireless);
+
+				let status_button = document.getElementById("status_button");
+				status_button.addEventListener("click", e => {
+					e.preventDefault();
+					getStatus();
+				});
 			}
 
 			window.addEventListener("load", startup);
@@ -125,6 +139,11 @@
 					<div class="field">
 						<div class="control">
 							<button id="connect_button">Connect</button>
+						</div>
+					</div>
+					<div class="field">
+						<div class="control">
+							<button id="status_button">Status</button>
 						</div>
 					</div>
 				</form>
