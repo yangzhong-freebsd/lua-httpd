@@ -381,20 +381,31 @@ end
 
 function connectToNetwork(request)
         local req = json.decode(request.body)
-        local cfg = {}
-        for key, val in pairs(req) do
-                cfg[key] = val
-                print(key, val)
-        end
 
         --TODO: add wired support and dhcp, slaac
         network.connectWireless(req.network, req.password)
-        db.update("network", req.network)
-        db.update("network_password", req.password)
 
         return { status=200, reason="ok", body = "okay"}
 end
 
+function writeNetwork(request)
+        local req = parseRequest(request.body)
+
+        db.update("network_interface", req.network_interface)
+        db.update("network", req.network)
+        db.update("network_password", req.password)
+
+        for line in io.lines("/etc/resolv.conf") do
+                local key, val = line:match("^([^ ]+) (.*)")
+                if (key == "search") then
+                        db.update("resolv_search", val)
+                elseif (key == "nameserver") then
+                        db.update("resolv_nameserver", val)
+                end
+        end
+
+        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
+end
 
 function doInstall(request)
         local req = parseRequest(request.body)
@@ -436,5 +447,6 @@ server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
 server:add_route("POST", "^/writekeymap$", writeKeymap)
+server:add_route("POST", "^/networkconfirm$", writeNetwork)
 
 server:run(true)

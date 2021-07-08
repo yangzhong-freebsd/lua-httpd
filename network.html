@@ -68,25 +68,16 @@
 
 			function startup () {
 				let rescan_button = document.getElementById("rescan_button");
-				rescan_button.addEventListener("click", e => {
-					e.preventDefault();
-					scan();
-				});
+				rescan_button.addEventListener("click", scan);
 
 				let connect_button = document.getElementById("connect_button");
-				connect_button.addEventListener("click", e => {
-					e.preventDefault();
-					connect();
-				});
+				connect_button.addEventListener("click", connect);
 
 				let interface_select = document.getElementById("network_interface");
 				interface_select.addEventListener("change", checkWireless);
 
 				let status_button = document.getElementById("status_button");
-				status_button.addEventListener("click", e => {
-					e.preventDefault();
-					getStatus();
-				});
+				status_button.addEventListener("click", getStatus);
 			}
 
 			window.addEventListener("load", startup);
@@ -97,7 +88,7 @@
 
 				<h1 class="title">Configure the Network</h1>
 
-				<form action="/network" method="POST">
+				<form action="/networkconfirm" method="POST">
 					<div class="field">
 						<label class="label">Pick a Network Interface</label>
 						<div class="control">
@@ -123,27 +114,28 @@
 								</select>
 							</div>
 							<div class="control">
-								<button id="rescan_button">scan again</button>
+								<button type="button" id="rescan_button">scan again</button>
 							</div>
 
 							<label class="label">Password:</label>
 							<div class="control">
 								<input class="input" type="password" name="password" id="password" placeholder="password"></input>
 							</div>
-
+							<div class="control">
+								<button type="button" id="connect_button">Connect</button>
+							</div>
 						</div>
 					</div>
 
 					<hr>
-
 					<div class="field">
 						<div class="control">
-							<button id="connect_button">Connect</button>
+							<button type="button" id="status_button">Status</button>
 						</div>
 					</div>
 					<div class="field">
 						<div class="control">
-							<button id="status_button">Status</button>
+							<button type="submit" id="submit_button">Confirm</button>
 						</div>
 					</div>
 				</form>
