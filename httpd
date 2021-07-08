@@ -171,8 +171,8 @@ function mainPage(request)
         local parsed_db = db.parse()
 
         local cur_lang = parsed_db.installer_language
-        local keymap_layout = parsed_db.keymap_layout
-        local keymap_variant = parsed_db.keymap_variant
+        local keymap_layout = parsed_db.keymap_layout or "us" --TODO: fix. query system for default
+        local keymap_variant = parsed_db.keymap_variant or ""
 
         local body = template.process(main_page,
                 {
