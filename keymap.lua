@@ -95,6 +95,32 @@ function getXKeymaps()
     keymap.XMap = map
 end
 
+function keymap.getCurrentLayout()
+        local data_file = io.popen("XAUTHORITY="..XAUTHORITY.." setxkbmap -display :0 -query")
+
+        for line in data_file:lines() do
+                local layout = line:match("layout:%s+(.*)")
+                if (layout) then
+                        return layout
+                end
+        end
+
+        return ""
+end
+
+function keymap.getCurrentVariant()
+        local data_file = io.popen("XAUTHORITY="..XAUTHORITY.." setxkbmap -display :0 -query")
+
+        for line in data_file:lines() do
+                local variant = line:match("variant:%s+(.*)")
+                if (variant) then
+                        return variant
+                end
+        end
+
+        return ""
+end
+
 function keymap.prettyPrint(layout, variant)
         local layout_desc, variant_desc
 

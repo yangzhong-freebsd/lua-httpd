@@ -167,12 +167,21 @@ function getStylesheet()
         return { status=200, reason="ok", body=stylesheet }
 end
 
+function prefillDB()
+        db.updateIfUnset("installer_language", "en")
+        db.updateIfUnset("keymap_layout", keymap.getCurrentLayout())
+        db.updateIfUnset("keymap_variant", keymap.getCurrentVariant())
+end
+
 function mainPage(request)
+
+        prefillDB()
+
         local parsed_db = db.parse()
 
         local cur_lang = parsed_db.installer_language
-        local keymap_layout = parsed_db.keymap_layout or "us" --TODO: fix. query system for default
-        local keymap_variant = parsed_db.keymap_variant or ""
+        local keymap_layout = parsed_db.keymap_layout
+        local keymap_variant = parsed_db.keymap_variant
 
         local body = template.process(main_page,
                 {
