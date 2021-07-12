@@ -32,20 +32,29 @@
 			}
 
 			function connect() {
+				let submit_button = document.getElementById("submit_button");
+				submit_button.disabled = true;
+
 				let network = document.getElementById("wireless_select").value;
 				let password = document.getElementById("password").value;
 				fetch("/network", {
 					method : "POST",
 					body : JSON.stringify({"network" : network, "password" : password}) 
-				}).then(data => {
-					data.text().then(console.log); //TODO clean up, make continue button that depends on connection
 				});
 			}
 
 			function getStatus (e) {
 				fetch("networkstatus").then(data => {
 					data.text().then(text => {
-						console.log(text);
+						let status_text = document.getElementById("statustext");
+
+						let matches = text.match("wpa_state=(.*)\n");
+						status_text.innerHTML = matches[1];
+
+						if (matches[1].match("COMPLETED")) {
+							let submit_button = document.getElementById("submit_button");
+							submit_button.disabled = false;
+						}
 					});
 				});
 			}
@@ -128,6 +137,7 @@
 					</div>
 
 					<hr>
+					<div id="statustext"></div>
 					<div class="field">
 						<div class="control">
 							<button type="button" id="status_button">Status</button>
@@ -135,7 +145,7 @@
 					</div>
 					<div class="field">
 						<div class="control">
-							<button type="submit" id="submit_button">Confirm</button>
+							<button type="submit" id="submit_button" disabled>Confirm</button>
 						</div>
 					</div>
 				</form>
