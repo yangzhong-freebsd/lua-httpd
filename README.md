@@ -30,6 +30,13 @@ Finally, edit the files `httpd` and `db.lua`: change the value of the variable
 Now you should be able to go to localhost on your browser and use the installer
 frontend!
 
+## Problems and future plans
+
+1. Currently, the network selector only supports wireless interfaces with WPA2. 
+2. The partitioner is also very basic and only supports ZFS.
+3. bsdinstall offers many different ways to configure partitions, one way being to open a terminal and manually do it. This works because bsdinstall does the partitioning immediately after partitions have been configured. In the experimental installer, the partitioning options get written to the configuration file, and everything is done at the end, all at once. It doesn't seem possible to offer the manual partitioning option while keeping this property of the experimental installer. 
+4. Because the keymap configurator in the installer sets keymap on demand, it sets the X keymap but not the console one. I intend to add the option to install a graphical environment in the installer, but haven't done that work yet. So, if you change the layout, it'll be set for the rest of the installation process, but not in the final installed system which boots to the console. There does not seem to be a straightforward way to map X keymap/variant options to console keymap layouts.
+
 <!--
 # Pure Lua httpd
 
