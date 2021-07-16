@@ -117,11 +117,13 @@
 								<input class="input" type="password" name="root_password"
 								placeholder="{{lang["enter password..."][cur_lang]}}">
 							</div>
+							<!--
 							<label class="label">{{lang["Confirm root password:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="password" name="confirm_root_password"
 								placeholder="{{lang["confirm password..."][cur_lang]}}">
 							</div>
+							-->
 						</div>
 					</div>
 					<!--
@@ -157,7 +159,7 @@
 
 					<div class="field">
 						<div class="control">
-							<button class="is-primary" type="submit">{{lang["Install"][cur_lang]}}</button>
+							<button class="is-primary" type="submit" {{disabled(not ready)}}>{{lang["Install"][cur_lang]}}</button>
 						</div>
 					</div>
 
