@@ -20,8 +20,8 @@
 -- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SRC_DIR = "/home/yang/src/lua-httpd/"
-XAUTHORITY = "/home/yang/.Xauthority"
+SRC_DIR = "/Applications/lua-httpd/"
+XAUTHORITY = "/usr/home/liveuser/.Xauthority"
 
 local VIEWS_DIR = SRC_DIR .. "views/"
 
@@ -501,8 +501,9 @@ function doInstall(request)
         db.update("root_password", req.root_password)
 
         --For testing, I don't run the actual install command. Check the 'liveuser' branch
-        --install.install()
-        --os.execute("cd "..SRC_DIR.." && sleep 1 && cat installscript && ./bsdinstall-scripted installscript")
+        install.install()
+        os.execute("cd "..SRC_DIR.." && sleep 1 && cat installscript && ./bsdinstall-scripted installscript")
+
         db.close()
 
         return { status=501, reason="Not implemented", body="TODO" }
