@@ -28,6 +28,10 @@ local misc = require("misc")
 local db_filename = SRC_DIR .. "db"
 local db_file = io.open(db_filename, "r+")
 
+function db.close()
+        db_file:close()
+end
+
 function db.parse()
         local table = {users = {}}
 

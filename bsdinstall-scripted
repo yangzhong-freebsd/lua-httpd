@@ -32,8 +32,7 @@
 BSDCFG_SHARE="/usr/share/bsdconfig"
 . $BSDCFG_SHARE/common.subr || exit 1
 f_dprintf "%s: loading includes..." "$0"
-f_include $BSDCFG_SHARE/dialog.subr
-f_include $BSDCFG_SHARE/variable.subr
+f_include $BSDCFG_SHARE/variable.subr #TODO figure out what this is
 
 ############################################################ CONFIGURATION
 
@@ -47,13 +46,13 @@ f_include $BSDCFG_SHARE/variable.subr
 #
 : ${ZFSBOOT_POOL_NAME:=zroot}
 
-: ${TMPDIR:="/tmp"}; export TMPDIR
+: ${TMPDIR="/tmp"}; export TMPDIR
 
-#: ${BSDINSTALL_TMPETC="${TMPDIR}/bsdinstall_etc"}; export BSDINSTALL_TMPETC
-#: ${BSDINSTALL_TMPBOOT="${TMPDIR}/bsdinstall_boot"}; export BSDINSTALL_TMPBOOT
-#: ${PATH_FSTAB="$BSDINSTALL_TMPETC/fstab"}; export PATH_FSTAB
-#: ${BSDINSTALL_DISTDIR="/usr/freebsd-dist"}; export BSDINSTALL_DISTDIR
-#: ${BSDINSTALL_CHROOT="/mnt"}; export BSDINSTALL_CHROOT
+: ${BSDINSTALL_TMPETC="${TMPDIR}/bsdinstall_etc"}; export BSDINSTALL_TMPETC
+: ${BSDINSTALL_TMPBOOT="${TMPDIR}/bsdinstall_boot"}; export BSDINSTALL_TMPBOOT
+: ${PATH_FSTAB="$BSDINSTALL_TMPETC/fstab"}; export PATH_FSTAB
+: ${BSDINSTALL_DISTDIR="/usr/freebsd-dist"}; export BSDINSTALL_DISTDIR
+: ${BSDINSTALL_CHROOT="/mnt"}; export BSDINSTALL_CHROOT
 
 ############################################################ GLOBALS
 
@@ -67,14 +66,6 @@ msg_installation_error="Installation Error!"
 
 error()
 {
-	local file
-	f_getvar "$VAR_DEBUG_FILE#+" file
-	if [ "$file" ]; then
-		f_dialog_title "$msg_installation_error"
-		f_dialog_textbox "$file"
-		# No need to restore title, pining for the fjords
-	fi
-
 	[ -f "$PATH_FSTAB" ] || exit
 	if [ "$ZFSBOOT_DISKS" ]; then
 		zpool export $ZFSBOOT_POOL_NAME
@@ -126,9 +117,7 @@ fetch --output=/usr/share/keys/pkg/trusted/alpha.pkgbase.live.pub https://alpha.
 # pkg -o ASSUME_ALWAYS_YES=yes -r ${BSDINSTALL_CHROOT} update </dev/null
 
 pkg_install() {
-        for item in ${pkg_list}; do
-               pkg -o ASSUME_ALWAYS_YES=yes -r ${BSDINSTALL_CHROOT} install ${item} </dev/null
-        done
+       pkg -o ASSUME_ALWAYS_YES=yes -r ${BSDINSTALL_CHROOT} install ${pkg_list} </dev/null
 }
 
 for feature in $PACKAGES; do
@@ -187,6 +176,9 @@ if [ "${install_development}" == "yes" ]; then
         pkg_list=$(pkg -o ASSUME_ALWAYS_YES=yes -r ${BSDINSTALL_CHROOT} search -g 'FreeBSD-*-dev-*' </dev/null | grep -vE "${mod}" | awk '{print $1}')
         pkg_install "development"
 fi
+
+pkg_list=$OTHER_PACKAGES
+pkg_install "other"
 
 # Configure bootloader if needed
 bsdinstall bootconfig

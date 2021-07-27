@@ -16,6 +16,7 @@ function main()
 	local users = db.getUsersAsList(parsed_db)
 
 	outfile:write("PACKAGES=\"kernel base\"\n")
+	outfile:write("OTHER_PACKAGES=\"vim-console sudo git\"\n")
 	outfile:write("export ZFSBOOT_VDEV_TYPE="..parsed_db.zfs_filesystem.."\n")
 	outfile:write("export ZFSBOOT_DISKS=\""..parsed_db.zfs_disks.."\"\n")
 	outfile:write("export nonInteractive=\"YES\"\n")

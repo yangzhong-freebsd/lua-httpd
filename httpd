@@ -407,7 +407,13 @@ function writeNetwork(request)
         db.update("network", req.network)
         db.update("network_password", req.password)
 
-        for line in io.lines("/etc/resolv.conf") do
+        local resolv_file = io.open("/etc/resolv.conf", "r")
+        while (resolv_file == nil) do --TODO: there must be a better way to do this
+                os.execute("sleep 1")
+                resolv_file = io.open("/etc/resolv.conf", "r")
+        end
+
+        for line in resolv_file:lines() do
                 local key, val = line:match("^([^ ]+) (.*)")
                 if (key == "search") then
                         db.update("resolv_search", val)
@@ -415,6 +421,8 @@ function writeNetwork(request)
                         db.update("resolv_nameserver", val)
                 end
         end
+
+        resolv_file:close()
 
         return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
@@ -428,6 +436,8 @@ function doInstall(request)
         db.update("hostname", req.hostname)
         db.update("root_password", req.root_password)
         db.update("packages", req.packages)
+
+        db.close()
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
