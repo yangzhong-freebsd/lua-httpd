@@ -31,12 +31,20 @@
 
 			let connection_interval = null;
 			function connect() {
+				let connect_button = document.getElementById("connect_button");
 				let network = document.getElementById("wireless_select").value;
 				let password = document.getElementById("password").value;
+
+				if (!(network && password)) {
+					return;
+				}
+
 				fetch("/network", {
 					method : "POST",
 					body : JSON.stringify({"network" : network, "password" : password}) 
-				}).then(() => {
+				}).then((resp) => {
+					connect_button.disabled = true;
+					connect_button.innerHTML = "Connecting...";
 					if (connection_interval) {
 						clearInterval(connection_interval);
 					}
@@ -63,10 +71,11 @@
 
 				fetch("/networkconfirm", {
 					method : "POST",
-					body : JSON.stringify({"network_interface" : network_interface, "network" : network, "password" : password}) 
-				}).then(() => {
-					window.location.replace("/");
-				});
+					body : JSON.stringify({
+						"network_interface" : network_interface,
+						"network" : network,
+						"password" : password}) 
+				}).then(() => window.location.replace("/"));
 			}
 
 			function checkWireless (e) {
@@ -85,15 +94,36 @@
 				});
 			}
 
+			function clearConnectionAttempt() {
+				let connect_button = document.getElementById("connect_button");
+				if (connection_interval) {
+					clearInterval(connection_interval);	
+				}
+				connect_button.disabled = false;
+				connect_button.innerHTML = "Connect";
+			}
+
 			function startup () {
 				let rescan_button = document.getElementById("rescan_button");
-				rescan_button.addEventListener("click", scan);
+				rescan_button.addEventListener("click", () => {
+					clearConnectionAttempt();
+					scan();
+				});
 
 				let connect_button = document.getElementById("connect_button");
 				connect_button.addEventListener("click", connect);
 
 				let interface_select = document.getElementById("network_interface");
-				interface_select.addEventListener("change", checkWireless);
+				interface_select.addEventListener("change", (e) => {
+					clearConnectionAttempt();
+					checkWireless(e);
+				});
+
+				let wireless_select = document.getElementById("wireless_select");
+				wireless_select.addEventListener("change", clearConnectionAttempt);
+
+				let password = document.getElementById("password");
+				password.addEventListener("change", clearConnectionAttempt); 
 			}
 
 			window.addEventListener("load", startup);
