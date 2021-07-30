@@ -189,6 +189,7 @@ function mainPage(request)
                 {
                 cur_lang = cur_lang,
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
+                network_string = parsed_db.network,
                 disk_string = disk.prettyPrintDisks(parsed_db.zfs_disks),
                 lang = lang.translations,
                 boothowto = boot.howto(),
