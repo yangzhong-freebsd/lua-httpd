@@ -149,7 +149,7 @@ function parseRequest(body)
                 local mapping = unescape(line)
                 local key, val = mapping:match("^([^=]+)=(.*)")
 
-                --requests could possibly have multiple vals per key. 
+                --requests could possibly have multiple vals per key.
                 --Since I know that these will always be for inputs
                 --that will never have space in them (currently: disks)
                 --I'll just space-separate them.
@@ -221,7 +221,6 @@ function languagePage(request)
 end
 
 function zfsPage(request)
-
         local parsed_db = db.parse()
         local selected_disks = parsed_db.zfs_disks or ""
         local selected_disk_list = misc.splitString(selected_disks, " ")
@@ -246,7 +245,7 @@ function zfsPage(request)
         return { status=200, reason="ok", body = body }
 end
 
-function setZFS(request)
+function writeZFS(request)
         local req = parseRequest(request.body)
 
         local disks = req.disk
@@ -395,7 +394,6 @@ end
 function connectToNetwork(request)
         local req = json.decode(request.body)
 
-        --TODO: add wired support and dhcp, slaac
         network.connectWireless(req.network, req.password)
 
         return { status=200, reason="ok", body = "okay"}
@@ -439,6 +437,7 @@ function doInstall(request)
         db.update("packages", req.packages)
 
         db.close()
+        --For testing, I don't run the actual install command. Check the 'liveuser' branch
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
@@ -465,7 +464,7 @@ server:add_route("GET", "^/network$", networkPage)
 server:add_route("GET", "^/keymap$", keymapPage)
 server:add_route("GET", "^/$", mainPage)
 
-server:add_route("POST", "^/zfs$", setZFS)
+server:add_route("POST", "^/zfs$", writeZFS)
 server:add_route("POST", "^/setlanguage", setLanguage)
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
