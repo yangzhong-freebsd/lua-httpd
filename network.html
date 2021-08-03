@@ -137,8 +137,8 @@
 				<p>NOTE: This network selector currently only supports wireless interfaces, and only with WPA2, as that is all I have access to right now.</p>  
 
 				<div class="field">
-					<label class="label">Pick a Network Interface</label>
-					<div class="control">
+					<label>
+						Pick a Network Interface
 						<div class="select">
 							<select id="network_interface" name="network_interface">
 								<option value="" selected disabled>Select...</option>
@@ -147,27 +147,26 @@
 								{% end %}
 							</select>
 						</div>
-					</div>
+					</label>
 				</div>
 
 				<div class="field">
 					<div id="wireless_box" hidden>
 						<hr>
 
-						<label class="label">Network:</label>
-						<div class="control">
-							<div class="label" id="scanning_text">scanning...</div>
-							<select id="wireless_select" name="network">
-							</select>
-						</div>
+						<label>
+							Network:
+							<div id="scanning_text">scanning...</div>
+							<select id="wireless_select" name="network"></select>
+						</label>
 						<div class="control">
 							<button type="button" id="rescan_button">scan again</button>
 						</div>
 
-						<label class="label">Password:</label>
-						<div class="control">
+						<label>
+							Password:
 							<input class="input" type="password" name="password" id="password" placeholder="password"></input>
-						</div>
+						</label>
 						<div class="control">
 							<button type="button" id="connect_button">Connect</button>
 						</div>

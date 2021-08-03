@@ -15,15 +15,15 @@
 				<a href="/language">{{lang["Change language"][cur_lang]}}</a>
 
 				<div class="category-box">
-					<p>{{lang["Keymap:"][cur_lang]}} {{keymap_string}}</p>
+					<div>{{lang["Keymap:"][cur_lang]}} {{keymap_string}}</div>
 					<a href="/keymap">{{lang["Change"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
-					<p>{{network_string}}</p> <!--TODO rename these 'strings' -->
+					<div>{{network_string}}</div> <!--TODO rename these 'strings' -->
 					<a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
-					<p>{{disk_string}}</p>
+					<div>{{disk_string}}</div>
 					<a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
@@ -65,7 +65,7 @@
 
 					<div class="category-box">
 						<div class="field">
-							<label class="label">{{lang["Hostname:"][cur_lang]}}</label>
+							<div>{{lang["Hostname:"][cur_lang]}}</div>
 							<div class="control">
 								<input class="input" type="text" name="hostname" value="freebsd">
 							</div>
@@ -73,52 +73,42 @@
 					</div>
 
 					<div class="category-box">
-						<label class="label">Packages:<label>
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="kernel" name="packages" checked>
-									Kernel
-								</input>
-							</div>
-						</div>
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="base" name="packages" checked>
-									Base
-								</input>
-							</div>
-						</div>
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="debug" name="packages">
-									Debug
-								</input>
-							</div>
-						</div>
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="lib32" name="packages">
-									Lib32
-								</input>
-							</div>
-						</div>
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="development" name="packages">
-									Development
-								</input>
-							</div>
-						</div>
+						<div>Packages:</div>
+						<label>
+							<input type="checkbox" value="kernel" name="packages" checked>
+								Kernel
+							</input>
+						</label>
+						<label>
+							<input type="checkbox" value="base" name="packages" checked>
+								Base
+							</input>
+						</label>
+						<label>
+							<input type="checkbox" value="debug" name="packages">
+								Debug
+							</input>
+						</label>
+						<label>
+							<input type="checkbox" value="lib32" name="packages">
+								Lib32
+							</input>
+						</label>
+						<label>
+							<input type="checkbox" value="development" name="packages">
+								Development
+							</input>
+						</label>
 					</div>
 
 					<div class="category-box">
 						<div class="field">
-							<label class="label">{{lang["Root password:"][cur_lang]}}</label>
-							<div class="control">
+							<label>
+								{{lang["Root password:"][cur_lang]}}
 								<input class="input" type="password" name="root_password"
 								placeholder="{{lang["enter password..."][cur_lang]}}">
-							</div>
-							<!--
+							</label>
+							<!-- XXX If you ever uncomment these, please note that the <label> tags are used incorrectly.
 							<label class="label">{{lang["Confirm root password:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="password" name="confirm_root_password"

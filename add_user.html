@@ -44,32 +44,32 @@
 				<form action="/adduser" method="POST">
 
 					<div class="field">
-						<label class="label">Username:</label>
-						<div class="control">
+						<label>
+							Username:
 							<input class="input" type="text" id = "username" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
 							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$">
-						</div>
+						</label>
 					</div>
 
 					<div class="field">
-						<label class="label">Real name:</label>
-						<div class="control">
+						<label>
+							Real name:
 							<input class="input" type="text" name="full_name"
 							    placeholder="real name" value="{{orEmpty(full_name)}}" required>
-						</div>
+						</label>
 					</div>
 
 					<div class="field">
-						<label class="label">Additional groups:</label>
-						<div class="control">
+						<label>
+							Additional groups:
 							<input class="input" type="text" name="groups"
 							 placeholder="additional groups" value="{{orWheel(groups)}}">
-						</div>
+						</label>
 					</div>
 
 					<div class="field">
-						<label class="label">Shell:</label>
-						<div class="control">
+						<label>
+							Shell:
 							<div class="select">
 								<select name="shell">
 									{% for _, shell in ipairs(shells) do %}
@@ -77,23 +77,23 @@
 									{% end %}
 								</select>
 							</div>
-						</div>
+						</label>
 					</div>
 
 					<div class="field">
-						<label class="label">Password:</label>
-						<div class="control">
+						<label>
+							Password:
 							<input class="input" type="password" name="password" id="password"
 						            placeholder="password" required>
-						</div>
+						</label>
 					</div>
 
 					<div class="field">
-						<label class="label">Confirm password:</label>
-						<div class="control">
+						<label>
+							Confirm password:
 							<input class="input" type="password" name="confirm_password" id="confirm_password"
 							    placeholder="confirm password" required>
-						</div>
+						</label>
 					</div>
 					<span id="message"></span>
 					<div class="field">

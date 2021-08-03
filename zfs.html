@@ -55,36 +55,32 @@
 
 				<form action="/zfs" method="POST">
 
-					<label class="label">Pick the disks to use for FreeBSD:</label>
-					{% for dev, info in pairsByKeys(disks) do %}
-						<div class="field">
-							<div class="control">
-								<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
-									{{dev}}:
-									{{info["Disk descr."]}}
-									({{info["mediasize in bytes human"]}})
-								</input>
-							</div>
-						</div>
-					{% end %}
+					<label>
+						Pick the disks to use for FreeBSD:
+						{% for dev, info in pairsByKeys(disks) do %}
+							<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
+								{{dev}}:
+								{{info["Disk descr."]}}
+								({{info["mediasize in bytes human"]}})
+							</input>
+						{% end %}
+					</label>
 					
 					<hr>
 
-					<div class="field">
-						<label class="label">Filesystem:</label>
-						<div class="control">
-							<div class="select">
-								<select name="filesystem" id="filesystem">
-									{% for _, fs in pairs(filesystem_formats) do %}
-										<option {{selected(fs.value == selected_filesystem)}} value="{{fs.value}}">
-											{{fs.title}}
-											{{fs.min_disks > 1 and "(needs "..fs.min_disks.." disks)" or ""}}
-										</option>
-									{% end %}
-								</select>
-							</div>
+					<label>
+						Filesystem:
+						<div class="select">
+							<select name="filesystem" id="filesystem">
+								{% for _, fs in pairs(filesystem_formats) do %}
+									<option {{selected(fs.value == selected_filesystem)}} value="{{fs.value}}">
+										{{fs.title}}
+										{{fs.min_disks > 1 and "(needs "..fs.min_disks.." disks)" or ""}}
+									</option>
+								{% end %}
+							</select>
 						</div>
-					</div>
+					</label>
 
 					<hr>
 
