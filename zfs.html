@@ -11,14 +11,10 @@
 		<script>
 
 			function updateInfo() {
-				let disks = document.getElementById("disks");
 				let filesystem = document.getElementById("filesystem").value;
 				let disk_list = document.getElementsByName("disk");
 				let submit_button = document.getElementById("submit");
 				disk_list = [...disk_list].filter(opt => opt.checked).map(opt => opt.value);
-
-				console.log(filesystem);
-				console.log(disk_list);
 
 				switch (filesystem) {
 					case "stripe":
@@ -44,6 +40,7 @@
 				});
 				let filesystem = document.getElementById("filesystem");
 				filesystem.addEventListener("change", updateInfo);
+				updateInfo();
 			}
 			window.addEventListener("load", startup);
 
@@ -55,16 +52,18 @@
 
 				<form action="/zfs" method="POST">
 
-					<label>
+					<div>
 						Pick the disks to use for FreeBSD:
 						{% for dev, info in pairsByKeys(disks) do %}
+						<label>
 							<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
 								{{dev}}:
 								{{info["Disk descr."]}}
 								({{info["mediasize in bytes human"]}})
 							</input>
+						</label>
 						{% end %}
-					</label>
+					</div>
 					
 					<hr>
 

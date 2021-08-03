@@ -36,17 +36,18 @@ end
 
 function disk.info()
     local disks = {}
-    local text = kern_disks()
-    for dev in text:gmatch("([^ \n]+)") do
+
+    for dev in kern_disks():gmatch("([^ \n]+)") do
         local disk = {}
-        local text = diskinfo(dev)
-        for line in text:gmatch("([^\n]+)") do
-            if line:find("#") ~= nil then
+
+        for line in diskinfo(dev):gmatch("([^\n]+)") do
+            if line:find("#") then
                 local value, field = line:match("^\t([^\t]+)\t+# (.*)$")
-                local f, v = field:match("(.*) %((.*)%)")
-                if f ~= nil then
-                        disk[f] = value
-                        disk[f .. " human"] = v
+
+                local size_human = field:match("mediasize in bytes %((.*)%)")
+                if size_human then
+                        disk["mediasize in bytes"] = value
+                        disk["mediasize in bytes human"] = size_human
                 else
                         disk[field] = value
                 end

@@ -34,8 +34,6 @@ function main()
 	end
 
 	--TODO this should only run when we're configuring a wireless network 
-	--TODO add create_args_wlan0, wlans_lo0 lines to rc.conf, like in bsdinstall
-	--wait, lo is not what I want. I can't see the right interface after installing. need to see...
 	outfile:write(make_write("ctrl_interface=/var/run/wpa_supplicant", "/etc/wpa_supplicant.conf"))
 	outfile:write(make_write("eapol_version=2", "/etc/wpa_supplicant.conf"))
 	outfile:write(make_write("ap_scan=1", "/etc/wpa_supplicant.conf"))
