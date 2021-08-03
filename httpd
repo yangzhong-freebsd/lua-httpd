@@ -173,6 +173,18 @@ function prefillDB()
         db.updateIfUnset("keymap_variant", keymap.getCurrentVariant())
 end
 
+function getSelectedDisks(parsed_db)
+        local db_disks = parsed_db.zfs_disks or ""
+        local selected_disk_list = misc.splitString(db_disks, " ")
+
+        local selected_disks = {}
+        for _, disk in ipairs(selected_disk_list) do
+                selected_disks[disk] = true
+        end
+
+        return selected_disks
+end
+
 function mainPage(request)
 
         prefillDB()
@@ -190,7 +202,8 @@ function mainPage(request)
                 cur_lang = cur_lang,
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
                 network_string = parsed_db.network,
-                disk_string = disk.prettyPrintDisks(parsed_db.zfs_disks),
+                disks = disk.info(),
+                selected_disks = getSelectedDisks(parsed_db),
                 lang = lang.translations,
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
@@ -222,23 +235,16 @@ end
 
 function zfsPage(request)
         local parsed_db = db.parse()
-        local selected_disks = parsed_db.zfs_disks or ""
-        local selected_disk_list = misc.splitString(selected_disks, " ")
         local selected_filesystem = parsed_db.zfs_filesystem or "stripe"
         local cur_lang = parsed_db.installer_language
-
-        local selected_disks = {}
-        for _, disk in ipairs(selected_disk_list) do
-                selected_disks[disk] = true
-        end
 
         local body = template.process(zfs_page,
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
                 disks = disk.info(),
+                selected_disks = getSelectedDisks(parsed_db),
                 filesystem_formats = filesystem.zfs_formats,
-                selected_disks = selected_disks,
                 selected_filesystem = selected_filesystem,
         })
 

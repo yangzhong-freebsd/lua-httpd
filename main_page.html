@@ -23,7 +23,14 @@
 					<a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
-					<div>{{disk_string}}</div>
+					{% for dev, info in pairsByKeys(disks) do %}
+						{% if selected_disks[dev] then %}
+							<div>
+								{{info["Disk descr."]}}
+								({{info["mediasize in bytes human"]}})
+							</div>
+						{% end %}
+					{% end %}
 					<a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
 				</div>
 				<div class="category-box">
