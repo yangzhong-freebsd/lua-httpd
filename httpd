@@ -199,22 +199,21 @@ function mainPage(request)
 
         local body = template.process(main_page,
                 {
-                cur_lang = cur_lang,
-                keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
-                network_string = parsed_db.network,
-                disks = disk.info(),
-                selected_disks = getSelectedDisks(parsed_db),
-                lang = lang.translations,
                 boothowto = boot.howto(),
                 bootmethod = boot.method(),
+                cur_lang = cur_lang,
                 disks = disk.info(),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
+                keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
+                lang = lang.translations,
+                network_string = parsed_db.network,
                 partition_styles = partition.styles,
-                service_menu = service.menu,
-                shells = shell.list,
-                users = db.getUsersAsList(parsed_db),
                 ready = installReady,
+                shells = shell.list,
+                selected_disks = getSelectedDisks(parsed_db),
+                service_menu = service.menu,
+                users = db.getUsersAsList(parsed_db),
         })
         return { status=200, reason="ok", body=body }
 end
@@ -241,10 +240,10 @@ function zfsPage(request)
         local body = template.process(zfs_page,
         {
                 cur_lang = cur_lang,
-                lang = lang.translations,
                 disks = disk.info(),
-                selected_disks = getSelectedDisks(parsed_db),
                 filesystem_formats = filesystem.zfs_formats,
+                lang = lang.translations,
+                selected_disks = getSelectedDisks(parsed_db),
                 selected_filesystem = selected_filesystem,
         })
 
@@ -293,10 +292,10 @@ function keymapPage(request)
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
-                x_list = keymap.XList,
-                x_variants = variants,
                 selected_layout = selected_layout,
                 selected_variant = selected_variant,
+                x_list = keymap.XList,
+                x_variants = variants,
         })
 
         return { status=200, reason="ok", body = body }
@@ -348,13 +347,13 @@ function editUserPage(request)
         local body = template.process(add_user_page,
         {
                 cur_lang = cur_lang,
+                editing = true,
+                full_name = user_data.full_name,
+                groups = user_data.groups,
                 lang = lang.translations,
                 shells = shell.list,
                 username = username,
-                full_name = user_data.full_name,
                 user_shell = user_data.shell,
-                groups = user_data.groups,
-                editing = true,
         })
 
         return { status=200, reason="ok", body = body }

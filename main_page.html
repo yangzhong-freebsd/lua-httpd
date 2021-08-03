@@ -158,45 +158,8 @@
 								<input class="input" type="password" name="root_password"
 								placeholder="{{lang["enter password..."][cur_lang]}}">
 							</label>
-							<!-- XXX If you ever uncomment these, please note that the <label> tags are used incorrectly.
-							<label class="label">{{lang["Confirm root password:"][cur_lang]}}</label>
-							<div class="control">
-								<input class="input" type="password" name="confirm_root_password"
-								placeholder="{{lang["Confirm password"][cur_lang]}}">
-							</div>
-							-->
 						</div>
 					</div>
-					<!--
-					<div class="section-box">
-						<div class="field">
-							<label class="label">Enabled services:</label>
-							{% for _, svc in ipairs(service_menu) do %}
-								<div class="control">
-									<label class="checkbox">
-										<input type="checkbox" name="{{svc.name}}"
-											{{svc.default and "checked" or ""}}>
-											{{svc.description}}
-										</input>
-									</label>
-								</div>
-							{% end %}
-						</div>
-
-						<div class="field">
-							<label class="label">Security hardening:</label>
-							{% for _, item in ipairs(hardening_menu) do %}
-								<div class="control">
-									<label class="checkbox">
-										<input type="checkbox" name="{{item.name}}">
-											{{item.description}}
-										</input>
-									</label>
-								</div>
-							{% end %}
-						</div>
-					</div>
-					-->
 
 					<div class="section">
 						<div class="field">
