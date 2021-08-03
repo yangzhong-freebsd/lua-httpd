@@ -1,19 +1,233 @@
-body {
-	background-color:lightblue;
+* {
+	box-sizing: border-box;
 }
 
+:first-child {
+	margin-top: 0;
+}
+
+:last-child {
+	margin-bottom: 0;
+}
+
+body {
+	background-color: #eee;
+	font-family: Helvetica, sans-serif;
+	line-height:1.4;
+	padding: 1rem;
+	word-wrap:break-word;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+
+.title {
+	margin: 0;
+	font-weight: normal;
+}
+
+h2 {
+	font-size: 1.1rem;
+	margin: 1rem 0;
+}
+
+
+/* Styling tables is a pain. Beware! */
 table {
-	table-layout:fixed;
 	border-collapse:collapse;
 	width:100%;
+	margin: 1rem 0;
+}
+th {
+	text-align: left;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+}
+th,
+td {
+	padding: 0.5rem 1rem;
+}
+tr:first-child td,
+tr:first-child th {
+	padding-top: 1rem;
+}
+tr:last-child td,
+tr:last-child th {
+	padding-bottom: 1rem;
+}
+thead tr:last-child td,
+thead tr:last-child th {
+	padding-bottom: 0.5rem;
+}
+thead + tbody tr:first-child td,
+thead + tbody tr:first-child th{
+	padding-top: 0.5rem;
+}
+/* Resume sanity. */
+
+hr {
+	border: none;
+	border-bottom: 1px solid #bbb;
+	margin: 1.5rem 0;
 }
 
-p {
-	margin:0;
+label {
+	display: table;
+	margin: 1.5em 0;
 }
 
-.category-box {
-	background-color:white;
-	margin-top:10px;
-	margin-bottom:10px;
+select {
+	display: inline;
 }
+
+textarea {
+	margin: 1rem 0;
+}
+
+.button {
+	padding: 0.5em 1em;
+	border-radius:5px;
+	color: #1e3799;
+	background: white;
+	border: 1px solid currentColor;
+	cursor: pointer;
+	display: inline-block;
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+
+.button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.button.right-side {
+	margin-left: 1rem;
+}
+
+.button.primary {
+	background: #1e3799;
+	color: white;
+}
+
+a {
+	color: #1e3799;
+	text-decoration: none;
+}
+
+.link {
+	text-transform: uppercase;
+	text-decoration: none;
+	color: #1e3799;
+	padding: 0;
+	font-size: 1rem;
+	display: inline;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.wrapper {
+	width: 80rem;
+	max-width: 100%;
+	margin: 0 auto;
+
+}
+
+.breadcrumbs {
+	font-size: 0.8rem;
+	padding-left: 0;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid #bbb;
+}
+
+.section,
+.section-box {
+	margin: 1rem 0;
+}
+
+.section-box,
+.section-box-nested {
+	padding: 1rem;
+	border: 1px solid #bbb;
+	background: white;
+}
+
+.section-box-nested {
+	padding: 0;
+	border-bottom: none;
+}
+
+.sub-box {
+	padding: 1rem;
+}
+
+.sub-box,
+.sub-box-table {
+	border-bottom: 1px solid #bbb;
+}
+
+.section-box-grid {
+	display: flex;
+	padding: 0;
+}
+
+.grid-left {
+	width: 30%;
+	padding: 1rem;
+}
+
+.grid-right {
+	width: 70%;
+	padding: 1rem;
+}
+
+.change-link {
+	margin-left: 1rem;
+	font-size: 0.8rem;
+	font-weight: bold;
+}
+
+.link.delete {
+	color: #888;
+}
+
+.description {
+	font-style: italic;
+	font-size: 0.8rem;
+}
+
+/*
+.users thead {
+	border-bottom: 1px solid #bbb;
+}
+
+.users tbody tr + tr {
+	border-top: 1px solid #bbb;
+}
+*/
+
+.input-message {
+	font-style: italic;
+	padding-left: 1rem;
+}
+
+.grouped {
+	margin: 0;
+}
+
+.label {
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	display: block;
+}
+
+.inline {
+	display: inline-block;
+	margin: 0;
+}
+

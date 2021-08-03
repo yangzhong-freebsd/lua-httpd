@@ -3,22 +3,27 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/style">
 		<title>Install FreeBSD</title>
 	</head>
 	<body>
 		<script>
 			function scan() {
+				let wireless = document.getElementById("wireless");
 				let wireless_select = document.getElementById("wireless_select");
 				let scanning_text = document.getElementById("scanning_text");
+				let rescan_button = document.getElementById("rescan_button");
+
+				rescan_button.hidden = true;
+				wireless.hidden = true;
 
 				scanning_text.hidden = false;
-				wireless_select.hidden = true;
 				fetch("/scanwireless").then(data => {
 					data.text().then(text => {
 						let networks = JSON.parse(text);
 						scanning_text.hidden = true;
-						wireless_select.hidden = false;
-						wireless_select.innerHTML = "";
+						wireless.hidden = false;
+						rescan_button.hidden = false;
 
 						for (let i = 0; i < networks.length; ++i) {
 							let option = document.createElement("option");
@@ -129,16 +134,21 @@
 			window.addEventListener("load", startup);
 
 		</script>
-		<div class="columns is-centered">
-			<div class="column is-narrow">
+		<div class="wrapper">
+                        <menu class="breadcrumbs">
+                                <a href="/">{{lang["Home"][cur_lang]}}</a> &gt; {{lang["Network"][cur_lang]}}
+                        </menu>
 
+			<header class="section">
 				<h1 class="title">Configure the Network</h1>
 
-				<p>NOTE: This network selector currently only supports wireless interfaces, and only with WPA2, as that is all I have access to right now.</p>  
+				<p class="description">NOTE: This network selector currently only supports wireless interfaces, and only with WPA2, as that is all I have access to right now.</p>  
+			</header>
 
-				<div class="field">
+			<div class="section-box-nested">
+				<div class="sub-box">
 					<label>
-						Pick a Network Interface
+						<span class="label">Network Interface</span>
 						<div class="select">
 							<select id="network_interface" name="network_interface">
 								<option value="" selected disabled>Select...</option>
@@ -150,28 +160,25 @@
 					</label>
 				</div>
 
-				<div class="field">
-					<div id="wireless_box" hidden>
-						<hr>
+					<div class="sub-box" id="wireless_box" hidden>
 
-						<label>
-							Network:
-							<div id="scanning_text">scanning...</div>
+						<label class="inline">
+							<span class="label">Network</span>
+							<div id="scanning_text">Scanning...</div>
+							<div id="wireless">
 							<select id="wireless_select" name="network"></select>
+							</div>
 						</label>
-						<div class="control">
-							<button type="button" id="rescan_button">scan again</button>
-						</div>
+							<button class="button right-side" type="button" id="rescan_button">Scan Again</button>
 
 						<label>
-							Password:
+							<span class="label">Password</span>
 							<input class="input" type="password" name="password" id="password" placeholder="password"></input>
 						</label>
-						<div class="control">
-							<button type="button" id="connect_button">Connect</button>
-						</div>
 					</div>
-				</div>
+			</div>
+			<div class="section">
+							<button class="button primary" type="button" id="connect_button">Connect</button>
 			</div>
 		</div>
 	</body>

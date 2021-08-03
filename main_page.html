@@ -7,22 +7,49 @@
 		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
-		<div class="columns is-centered">
+		<div class="wrapper">
 			<div class="column is-narrow">
 
-				<h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
-
-				<a href="/language">{{lang["Change language"][cur_lang]}}</a>
-
-				<div class="category-box">
-					<div>{{lang["Keymap:"][cur_lang]}} {{keymap_string}}</div>
-					<a href="/keymap">{{lang["Change"][cur_lang]}}</a>
+				<div class="section">
+				<header class="header">
+					<h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
+					<a class="link" href="/language">{{lang["Change language"][cur_lang]}}</a>
+				</header>
 				</div>
-				<div class="category-box">
+
+				<div class="section-box section-box-nested">
+					<header class="sub-box">
+						<h2>{{lang["Settings"][cur_lang]}}</h2>
+					</header>
+
+					<div class="sub-box-table">
+					<table>
+					<tr>
+						<th>{{lang["Keymap"][cur_lang]}}</th> 
+						<td>{{keymap_string}}<a href="/keymap" class="link change-link">{{lang["Change"][cur_lang]}}</a></td>
+					</tr>
+					<tr>	
+						<th>{{lang["Timezone"][cur_lang]}}</th>
+						<td>Setting goes here</td>
+					</tr>
+					</table>
+					</div>
+				</div>
+				<div class="section-box section-box-nested">
+					<header class="sub-box">
+						<h2>{{lang["Network"][cur_lang]}}</h2>
+					</header>
+					<div class="sub-box">
 					<div>{{network_string}}</div> <!--TODO rename these 'strings' -->
-					<a href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+					<a class="button" href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+					</div>
 				</div>
-				<div class="category-box">
+				<div class="section-box section-box-nested">
+					<header class="sub-box">
+						<h2>{{lang["Filesystem"][cur_lang]}}</h2>
+					</header>
+					<div class="sub-box">
+					<div>
 					{% for dev, info in pairsByKeys(disks) do %}
 						{% if selected_disks[dev] then %}
 							<div>
@@ -31,19 +58,25 @@
 							</div>
 						{% end %}
 					{% end %}
-					<a href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+					</div>
+					<a class="button" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+					</div>
 				</div>
-				<div class="category-box">
-					<table>
+				<div class="section-box section-box-nested">
+					<header class="sub-box">
+						<h2>{{lang["Users"][cur_lang]}}</h2>
+					</header>
+					{% if #users ~= 0 then %}
+					<div class="sub-box-table">
+					<table class="users">
 						<thead>
 							<tr>
-								<td>{{lang["Username"][cur_lang]}}</td>
-								<td>{{lang["Full name"][cur_lang]}}</td>
-								<td>{{lang["Groups"][cur_lang]}}</td>
-								<td>{{lang["Shell"][cur_lang]}}</td>
-								<td>{{lang["Password"][cur_lang]}}</td>
-								<td></td>
-								<td></td>
+								<th>{{lang["Username"][cur_lang]}}</th>
+								<th>{{lang["Full name"][cur_lang]}}</th>
+								<th>{{lang["Groups"][cur_lang]}}</th>
+								<th>{{lang["Shell"][cur_lang]}}</th>
+								<th></th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -53,65 +86,75 @@
 									<td>{{usr.full_name}}</td>
 									<td>{{usr.groups}}</td>
 									<td>{{usr.shell}}</td>
-									<td>{{usr.password}}</td>
-									<td><a href="/edituser/{{usr.username}}">{{lang["Edit"][cur_lang]}}</a></td>
+									<td><a class="link" href="/edituser/{{usr.username}}">{{lang["Edit"][cur_lang]}}</a></td>
 									<td>
 										<form action="/deleteuser/{{usr.username}}" method="POST">
 											<input name="test" hidden></input> <!-- TODO: fix forms so that I can have empty submissions -->
-											<button type="submit">{{lang["Delete"][cur_lang]}}</button>
+											<button class="link delete" type="submit">x</button>
 										</form>
 									</td>
 								</tr>
 							{% end %}
 						</tbody>
 					</table>
-					<a href="/adduser">{{lang["Add user"][cur_lang]}}</a>
+					</div>
+					{% end %}
+					<div class="sub-box">
+					<a href="/adduser" class="button">+ {{lang["Add user"][cur_lang]}}</a>
+					</div>
 				</div>
 
 				<form action="/install" method="POST">
 
-					<div class="category-box">
-						<div class="field">
-							<div>{{lang["Hostname:"][cur_lang]}}</div>
-							<div class="control">
-								<input class="input" type="text" name="hostname" value="freebsd">
-							</div>
-						</div>
-					</div>
+					<div class="section-box section-box-nested">
+						<header class="sub-box">
+							<h2>{{lang["Packages"][cur_lang]}}</h2>
+						</header>
 
-					<div class="category-box">
-						<div>Packages:</div>
-						<label>
+						<div class="sub-box">
+						<p class="description">{{lang["Select the packages to be installed on your system."][cur_lang]}}</p>
+						<label class="grouped">
 							<input type="checkbox" value="kernel" name="packages" checked>
 								Kernel
 							</input>
 						</label>
-						<label>
+						<label class="grouped">
 							<input type="checkbox" value="base" name="packages" checked>
 								Base
 							</input>
 						</label>
-						<label>
+						<label class="grouped">
 							<input type="checkbox" value="debug" name="packages">
 								Debug
 							</input>
 						</label>
-						<label>
+						<label class="grouped">
 							<input type="checkbox" value="lib32" name="packages">
 								Lib32
 							</input>
 						</label>
-						<label>
+						<label class="grouped">
 							<input type="checkbox" value="development" name="packages">
 								Development
 							</input>
 						</label>
+						</div>
 					</div>
 
-					<div class="category-box">
-						<div class="field">
+					<div class="section-box section-box-nested">
+						<header class="sub-box">
+							<h2>{{lang["System Settings"][cur_lang]}}</h2>
+						</header>
+
+						<div class="sub-box">
 							<label>
-								{{lang["Root password:"][cur_lang]}}
+								<span class="label">{{lang["Hostname"][cur_lang]}}</span>
+								<input class="input" type="text" name="hostname" value="freebsd">
+							</label>
+						</div>
+						<div class="sub-box">
+							<label>
+								<span class="label">{{lang["Root password"][cur_lang]}}</span>
 								<input class="input" type="password" name="root_password"
 								placeholder="{{lang["enter password..."][cur_lang]}}">
 							</label>
@@ -119,13 +162,13 @@
 							<label class="label">{{lang["Confirm root password:"][cur_lang]}}</label>
 							<div class="control">
 								<input class="input" type="password" name="confirm_root_password"
-								placeholder="{{lang["confirm password..."][cur_lang]}}">
+								placeholder="{{lang["Confirm password"][cur_lang]}}">
 							</div>
 							-->
 						</div>
 					</div>
 					<!--
-					<div class="category-box">
+					<div class="section-box">
 						<div class="field">
 							<label class="label">Enabled services:</label>
 							{% for _, svc in ipairs(service_menu) do %}
@@ -155,9 +198,11 @@
 					</div>
 					-->
 
-					<div class="field">
-						<div class="control">
-							<button class="is-primary" type="submit" {{disabled(not ready)}}>{{lang["Install"][cur_lang]}}</button>
+					<div class="section">
+						<div class="field">
+							<div class="control">
+								<button class="button primary" type="submit" {{disabled(not ready)}}>{{lang["Install"][cur_lang]}}</button>
+							</div>
 						</div>
 					</div>
 

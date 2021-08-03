@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Install FreeBSD</title>
+		<link rel="stylesheet" href="/style">
 		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
 			<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/{{theme}}/bulmaswatch.min.css"> -->
 	</head>
@@ -36,73 +37,72 @@
 			window.addEventListener("load", startup);
 
 		</script>
-		<div class="columns is-centered">
-			<div class="column is-narrow">
+		<div class="wrapper">
+		
+			<menu class="breadcrumbs">
+				<a href="/">{{lang["Home"][cur_lang]}}</a> &gt; {{lang["Add user"][cur_lang]}}
+			</menu>
 
-				<h1 class="title">Add User</h1>
+				<header class="section">
+					<h1 class="title">{{lang["Add user"][cur_lang]}}</h1>
+				</header>
 
 				<form action="/adduser" method="POST">
-
-					<div class="field">
+			<div class="section-box-nested">
+				<div class="sub-box">
 						<label>
-							Username:
+							<span class="label">{{lang["Username"][cur_lang]}}</span>
 							<input class="input" type="text" id = "username" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
 							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$">
 						</label>
-					</div>
 
-					<div class="field">
 						<label>
-							Real name:
+							<span class="label">{{lang["Full name"][cur_lang]}}</span>
 							<input class="input" type="text" name="full_name"
 							    placeholder="real name" value="{{orEmpty(full_name)}}" required>
 						</label>
-					</div>
+				</div>
 
-					<div class="field">
+				<div class="sub-box">
 						<label>
-							Additional groups:
+							<span class="label">{{lang["Groups"][cur_lang]}}</span>
 							<input class="input" type="text" name="groups"
 							 placeholder="additional groups" value="{{orWheel(groups)}}">
 						</label>
-					</div>
 
-					<div class="field">
 						<label>
-							Shell:
-							<div class="select">
-								<select name="shell">
-									{% for _, shell in ipairs(shells) do %}
-									<option value="{{shell}}" {{selected(shell == user_shell)}}>{{shell}}</option>
-									{% end %}
-								</select>
-							</div>
+							<span class="label">{{lang["Shell"][cur_lang]}}</span>
+							<select name="shell">
+								{% for _, shell in ipairs(shells) do %}
+								<option value="{{shell}}" {{selected(shell == user_shell)}}>{{shell}}</option>
+								{% end %}
+							</select>
 						</label>
-					</div>
+				</div>
 
-					<div class="field">
+				<div class="sub-box">
 						<label>
-							Password:
+							<span class="label">{{lang["Password"][cur_lang]}}</span>
 							<input class="input" type="password" name="password" id="password"
 						            placeholder="password" required>
 						</label>
-					</div>
 
-					<div class="field">
 						<label>
-							Confirm password:
+							<span class="label">{{lang["Confirm password"][cur_lang]}}</span>
 							<input class="input" type="password" name="confirm_password" id="confirm_password"
 							    placeholder="confirm password" required>
+						<span id="message" class="input-message"></span>
 						</label>
-					</div>
-					<span id="message"></span>
-					<div class="field">
-						<div class="control">
-							<input id="submitbutton" class="button is-primary" type="submit" value="Apply" disabled>
-						</div>
-					</div>
-				</form>
+				</div>
 			</div>
+			<div class="section">
+				<div class="field">
+					<div class="control">
+						<input id="submitbutton" class="button primary" type="submit" value="Apply" disabled>
+					</div>
+				</div>
+			</div>
+				</form>
 		</div>
 	</body>
 </html>
