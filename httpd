@@ -21,8 +21,9 @@
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 local SRC_DIR = "/home/yang/src/lua-httpd/"
+local VIEWS_DIR = SRC_DIR .. "views/"
 
-package.path = SRC_DIR .. "?.lua;" .. package.path
+package.path = SRC_DIR .. "server/?.lua;" .. SRC_DIR .. "?.lua;" .. package.path
 
 local httpd = require("httpd")
 local template = require("template")
@@ -50,27 +51,27 @@ local stylesheet_file = assert(io.open(SRC_DIR .. "style.css", "r"))
 local stylesheet = stylesheet_file:read("*all")
 stylesheet_file:close()
 
-local main_page_file = assert(io.open(SRC_DIR .. "main_page.html", "r"))
+local main_page_file = assert(io.open(VIEWS_DIR .. "main_page.html", "r"))
 local main_page = main_page_file:read("*all")
 main_page_file:close()
 
-local add_user_file= assert(io.open(SRC_DIR .. "add_user.html", "r"))
+local add_user_file= assert(io.open(VIEWS_DIR .. "add_user.html", "r"))
 local add_user_page = add_user_file:read("*all")
 add_user_file:close()
 
-local network_file = assert(io.open(SRC_DIR .. "network.html", "r"))
+local network_file = assert(io.open(VIEWS_DIR .. "network.html", "r"))
 local network_page = network_file:read("*all")
 network_file:close()
 
-local keymap_file = assert(io.open(SRC_DIR .. "keymap.html", "r"))
+local keymap_file = assert(io.open(VIEWS_DIR .. "keymap.html", "r"))
 local keymap_page = keymap_file:read("*all")
 keymap_file:close()
 
-local zfs_file = assert(io.open(SRC_DIR .. "zfs.html", "r"))
+local zfs_file = assert(io.open(VIEWS_DIR .. "zfs.html", "r"))
 local zfs_page = zfs_file:read("*all")
 zfs_file:close()
 
-local language_file = assert(io.open(SRC_DIR .. "lang.html", "r"))
+local language_file = assert(io.open(VIEWS_DIR .. "lang.html", "r"))
 local language_page = language_file:read("*all")
 language_file:close()
 
