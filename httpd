@@ -324,8 +324,13 @@ function writeKeymap(request)
 end
 
 function addUserPage(request)
+        local parsed_db = db.parse()
+        local cur_lang = parsed_db.installer_language
+
         local body = template.process(add_user_page,
         {
+                cur_lang = cur_lang,
+                lang = lang.translations,
                 shells = shell.list,
         })
 
@@ -333,12 +338,17 @@ function addUserPage(request)
 end
 
 function editUserPage(request)
+        local parsed_db = db.parse()
+        local cur_lang = parsed_db.installer_language
+
         local username = request.matches[1]
 
         local user_data = db.parse().users[username]
 
         local body = template.process(add_user_page,
         {
+                cur_lang = cur_lang,
+                lang = lang.translations,
                 shells = shell.list,
                 username = username,
                 full_name = user_data.full_name,
@@ -374,8 +384,13 @@ function deleteUser(request)
 end
 
 function networkPage(request)
+        local parsed_db = db.parse()
+        local cur_lang = parsed_db.installer_language
+
         local body = template.process(network_page,
         {
+                cur_lang = cur_lang,
+                lang = lang.translations,
                 network_interfaces = network.getInterfaces(),
         })
 

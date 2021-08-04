@@ -7,33 +7,41 @@
 		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
-		<div class="columns is-centered">
-			<div class="column is-narrow">
+		<div class="wrapper">
+			<menu class="breadcrumbs">
+                                <a href="/">{{lang["Home"][cur_lang]}}</a> &gt; {{lang["Select language"][cur_lang]}}
+                        </menu>
 
+			<header class="section">
 				<h1 class="title">{{lang["Select installer language"][cur_lang]}}</h1>
+			</header>
 
 				<form action="/setlanguage" method="POST">
+			<div class="section-box">
 					<div class="field">
 						<div class="control">
-							<div class="select">
+							<label>
+								<span class="label">{{lang["Language"][cur_lang]}}</span>
 								<select id="language" name="language">
 									{% for code, l in pairsByKeys(languages) do %}
 									<option {{selected(code == cur_lang)}} value="{{code}}">{{l.name}}</option>
 									{% end %}
 								</select>
-							</div>
+							</label>
 						</div>
 					</div>
+				<p class="description">{{lang["Choosing a language also allows the installer to pick reasonable default options."][cur_lang]}}</p>
 
+			</div>
+			<div class="section">
 					<div class="field">
 						<div class="control">
-							<button class="is-primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
+							<button class="button primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
 						</div>
 					</div>
+			</div>
 				</form>
 
-				<p>{{lang["Choosing a language also allows the installer to pick reasonable default options."][cur_lang]}}</p>
-			</div>
 		</div>
 	</body>
 </html>

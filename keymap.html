@@ -53,49 +53,44 @@
 			window.addEventListener("load", startup);
 
 		</script>
-		<div class="columns is-centered">
-			<div class="column is-narrow">
+		<div class="wrapper">
+			<menu class="breadcrumbs">
+                                <a href="/">{{lang["Home"][cur_lang]}}</a> &gt; {{lang["Keyboard"][cur_lang]}}
+                        </menu>
 
+			<header class="section">
 				<h1 class="title">{{lang["Configure your keyboard"][cur_lang]}}</h1>
+			</header>
+
 
 				<form action="/writekeymap" method="POST">
-					<div class="field">
+			<div class="section-box">
 						<label>
-							{{lang["Select a keyboard layout:"][cur_lang]}}
-							<div class="select">
-								<select id="keymap" name="keymap">
-									<option value="" selected disabled>{{lang["Select..."][cur_lang]}}</option>
+							<span class="label">{{lang["Keyboard layout"][cur_lang]}}</span>
+							<select id="keymap" name="keymap">
+								<option value="" selected disabled>{{lang["Select..."][cur_lang]}}</option>
 
-									{% for _, map in ipairs(x_list) do %}
-									<option {{selected(map.layout == selected_layout)}} value="{{map.layout}}">{{map.desc}}</option>
-									{% end %}
-								</select>
-							</div>
+								{% for _, map in ipairs(x_list) do %}
+								<option {{selected(map.layout == selected_layout)}} value="{{map.layout}}">{{map.desc}}</option>
+								{% end %}
+							</select>
 						</label>
-					</div>
 
-					<div class="field">
 						<label>
-							Select a variant:
-							<div class="select">
-								<select id="variant" name="variant">
-									{% for _, var in ipairs(x_variants) do %}
-									<option {{selected(var.variant == selected_variant)}} value="{{var.variant}}">{{var.desc}}</option>
-									{% end %}
-								</select>
-							</div>
+							<span class="label">{{lang["Variant"][cur_lang]}}</span>
+							<select id="variant" name="variant">
+								{% for _, var in ipairs(x_variants) do %}
+								<option {{selected(var.variant == selected_variant)}} value="{{var.variant}}">{{var.desc}}</option>
+								{% end %}
+							</select>
 						</label>
-					</div>
 
-					<textarea placeholder="test your keyboard here..." class="textarea" rows=5 cols=40></textarea>
-
-					<div class="field">
-						<div class="control">
-							<button class="is-primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
-						</div>
-					</div>
-				</form>
+					<textarea placeholder="test your keyboard here..." class="textarea" rows=10 cols=70></textarea>
 			</div>
+			<div class="section">
+							<button class="button primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
+			</div>
+				</form>
 		</div>
 	</body>
 </html>

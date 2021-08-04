@@ -20,12 +20,18 @@ local lang = lang or {}
 lang.translations = {
         ["Add user"] = {
                 en = "Add user",
+                fr = "Ajouter un utilisateur",
+        },
+        ["Add users to your system."] = {
+                en = "Add users to your system.",
         },
         ["Change"] = {
                 en = "Change",
+                fr = "Changer",
         },
         ["Change language"] = {
                 en = "Change language",
+                fr = "Changer la langue",
         },
         ["Choosing a language also allows the installer to pick reasonable default options."] = {
                 en = "Choosing a language also allows the installer to pick reasonable default options.",
@@ -35,15 +41,18 @@ lang.translations = {
         },
         ["Configure your keyboard"] = {
                 en = "Configure your keyboard",
+                fr = "Configurer le clavier",
         },
         ["Configure ZFS"] = {
                 en = "Configure ZFS",
+                fr = "Configurer ZFS",
         },
         ["Confirm"] = {
                 en = "Confirm",
+                fr = "Confirmer",
         },
-        ["confirm password..."] = {
-                en = "confirm password...",
+        ["Confirm password"] = {
+                en = "Confirm password",
         },
         ["Confirm root password:"] = {
                 en = "Confirm root password:",
@@ -53,6 +62,7 @@ lang.translations = {
         },
         ["Edit"] = {
                 en = "Edit",
+                fr = "Modifier",
         },
         ["enter password..."] = {
                 en = "enter password...",
@@ -60,49 +70,104 @@ lang.translations = {
         ["Extra distsets:"] = {
                 en = "Extra distsets:",
         },
+        ["Filesystem"] = {
+                en = "Filesystem",
+                fr = "Système de fichiers",
+        },
         ["Full name"] = {
                 en = "Full name",
+                fr = "Nom",
         },
         ["Groups"] = {
                 en = "Groups",
+                fr = "Groupes",
         },
-        ["Hostname:"] = {
-                en = "Hostname:",
+        ["Home"] = {
+                en = "Home",
+                fr = "Accueil",
+        },
+        ["Hostname"] = {
+                en = "Hostname",
         },
         ["Install"] = {
                 en = "Install",
+                fr = "Installer",
         },
         ["Install FreeBSD"] = {
                 en = "Install FreeBSD",
                 fr = "Installer FreeBSD",
                 jp = "FreeBSDのインストール"
         },
-        ["Keymap:"] = {
-                en = "Keymap:",
+        ["Keyboard"] = {
+                en = "Keyboard",
+                fr = "Clavier",
+        },
+        ["Keyboard layout"] = {
+                en = "Keyboard layout",
+        },
+        ["Keymap"] = {
+                en = "Keymap",
+                fr = "Disposition du clavier",
+        },
+        ["Language"] = {
+                en = "Language",
+                fr = "Langue",
+        },
+        ["Network"] = {
+                en = "Network",
+        },
+        ["Packages"] = {
+                en = "Packages",
+                fr = "Pacquets",
         },
         ["Partition Disks: ZFS"] = {
                 en = "Partition Disks: ZFS",
         },
         ["Password"] = {
                 en = "Password",
+                fr = "Mot de passe",
         },
-        ["Root password:"] = {
-                en = "Root password:",
+        ["Root password"] = {
+                en = "Root password",
+                fr = "Mot de passe de utilisateur root",
         },
         ["Select..."] = {
                 en = "Select...",
         },
-        ["Select a keyboard layout:"] = {
-                en = "Select a keyboard layout:",
-        },
         ["Select installer language"] = {
                 en = "Select installer language",
+        },
+        ["Select language"] = {
+                en = "Select language",
+                fr = "Choisir la langue",
+        },
+        ["Select the packages to be installed on your system."] = {
+                en = "Select the packages to be installed on your system.",
+        },
+        ["Settings"] = {
+                en = "Settings",
+                fr = "Paramètres",
         },
         ["Shell"] = {
                 en = "Shell",
         },
+        ["System Settings"] = {
+                en = "System Settings",
+                fr = "Paramètres système",
+        },
+        ["Timezone"] = {
+                en = "Timezone",
+                fr = "Fuseau horaire",
+        },
         ["Username"] = {
                 en = "Username",
+        },
+        ["Users"] = {
+            en = "Users",
+            fr = "Utilisateurs",
+        },
+        ["Variant"] = {
+            en = "Variant",
         },
 }
 
