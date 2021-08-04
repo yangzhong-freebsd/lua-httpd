@@ -53,7 +53,10 @@ function disk.info()
                 end
             end
         end
-        disks[dev] = disk
+
+        if (disk["mediasize in bytes"]) then
+            disks[dev] = disk
+        end
     end
     return disks
 end
