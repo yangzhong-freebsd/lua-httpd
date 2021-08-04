@@ -215,6 +215,7 @@ function mainPage(request)
                 disks = disk.info(),
                 filesystem_formats = filesystem.formats,
                 hardening_menu = hardening.menu,
+                hostname = parsed_db.hostname,
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
                 lang = lang.translations,
                 network_string = parsed_db.network,
@@ -233,6 +234,11 @@ end
 function writePackages(request) --TODO make 'packages' 'pkgsets' naming more consistent
         local req = json.decode(request.body)
         db.update("packages", table.concat(req, " "))
+        return { status=200, reason="ok", body="TODO"}
+end
+
+function writeHostname(request) --TODO validate input
+        db.update("hostname", request.body)
         return { status=200, reason="ok", body="TODO"}
 end
 
@@ -469,10 +475,7 @@ function doInstall(request)
         for key, val in pairs(req) do
                 print(key, val)
         end
-
-        db.update("hostname", req.hostname)
         db.update("root_password", req.root_password)
-        db.update("packages", req.packages)
 
         db.close()
         --For testing, I don't run the actual install command. Check the 'liveuser' branch
@@ -493,6 +496,7 @@ server:add_route("POST", "^/setkeymap$", setKeymap)
 server:add_route("POST", "^/network$", connectToNetwork)
 server:add_route("POST", "^/networkconfirm$", writeNetwork)
 server:add_route("POST", "^/pkgsets$", writePackages)
+server:add_route("POST", "^/hostname$", writeHostname)
 
 --Pages
 server:add_route("GET", "^/language$", languagePage)

@@ -18,12 +18,23 @@
 				});
 			}
 
+			function writeHostname() {
+				let hostname = document.getElementById("hostname").value;
+
+				fetch("/hostname", {
+					method : "POST",
+					body : hostname,
+				});
+			}
+
 			function startup() {
 				let pkgsets = document.getElementsByName("packages");
 				pkgsets.forEach(set => {
 					set.addEventListener("change", writePkgsets);
 				});
 
+				let hostname_box = document.getElementById("hostname");
+				hostname_box.addEventListener("blur", writeHostname);
 			}
 			window.addEventListener("load", startup);
 		</script>
@@ -124,25 +135,27 @@
 					</div>
 				</div>
 
-				<form action="/install" method="POST">
+				<div class="section-box section-box-nested">
+					<header class="sub-box">
+						<h2>{{lang["Packages"][cur_lang]}}</h2>
+					</header>
 
-					<div class="section-box section-box-nested">
-						<header class="sub-box">
-							<h2>{{lang["Packages"][cur_lang]}}</h2>
-						</header>
-
-						<div class="sub-box">
-							<p class="description">{{lang["Select the packages to be installed on your system."][cur_lang]}}</p>
-							{% for _, pkgset in ipairs(packages) do %}
-								<label class="grouped">
-									<input type="checkbox" value={{pkgset.name}} name="packages"
-									    {{checked(selected_packages[pkgset.name])}} {{disabled(pkgset.vital)}}>
-										{{pkgset.name_human}}
-									</input>
-								</label>
-							{% end %}
-						</div>
+					<div class="sub-box">
+						<p class="description">{{lang["Select the packages to be installed on your system."][cur_lang]}}</p>
+						{% for _, pkgset in ipairs(packages) do %}
+							<label class="grouped">
+								<input type="checkbox" value={{pkgset.name}} name="packages"
+								    {{checked(selected_packages[pkgset.name])}} {{disabled(pkgset.vital)}}>
+									{{pkgset.name_human}}
+								</input>
+							</label>
+						{% end %}
 					</div>
+				</div>
+
+				<form action="/install" method="POST">
+					
+					<button disabled="true" type="submit" hidden="true"></button> <!-- TODO fix this hack -->
 
 					<div class="section-box section-box-nested">
 						<header class="sub-box">
@@ -152,7 +165,7 @@
 						<div class="sub-box">
 							<label>
 								<span class="label">{{lang["Hostname"][cur_lang]}}</span>
-								<input class="input" type="text" name="hostname" value="freebsd">
+								<input class="input" type="text" name="hostname" id="hostname" value="{{hostname}}">
 							</label>
 						</div>
 						<div class="sub-box">
