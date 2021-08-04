@@ -28,19 +28,20 @@ local httpd = require("httpd")
 local template = require("template")
 
 local boot = require("boot")
+local db = require("db")
 local disk = require("disk")
 local filesystem = require("filesystem")
 local hardening = require("hardening")
 local keymap = require("keymap")
+local lang = require("lang")
+local network = require("network")
+local pkgsets = require("pkgsets")
 local partition = require("partition")
 local service = require("service")
 local shell = require("shell")
-local network = require("network")
-local lang = require("lang")
-local db = require("db")
 
-local misc = require("misc")
 local json = require("json")
+local misc = require("misc")
 
 --local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
 local manifest = SRC_DIR .. "MANIFEST"
@@ -171,6 +172,8 @@ function prefillDB()
         db.updateIfUnset("installer_language", "en")
         db.updateIfUnset("keymap_layout", keymap.getCurrentLayout())
         db.updateIfUnset("keymap_variant", keymap.getCurrentVariant())
+        db.updateIfUnset("hostname", "freebsd")
+        db.updateIfUnset("packages", "base kernel") --TODO make this depend on data in package.lua
 end
 
 function getSelectedDisks(parsed_db)
@@ -195,6 +198,13 @@ function mainPage(request)
         local keymap_layout = parsed_db.keymap_layout
         local keymap_variant = parsed_db.keymap_variant
 
+        local selected_packages_list = misc.splitString(parsed_db.packages, " ")
+        local selected_packages = {}
+        for _, package in ipairs(selected_packages_list) do
+                selected_packages[package] = true
+        end
+
+
         local installReady = (parsed_db.network and parsed_db.zfs_disks) --TODO: make this check smarter
 
         local body = template.process(main_page,
@@ -208,14 +218,22 @@ function mainPage(request)
                 keymap_string = keymap.prettyPrint(keymap_layout, keymap_variant),
                 lang = lang.translations,
                 network_string = parsed_db.network,
+                packages = pkgsets.pkgsets,
                 partition_styles = partition.styles,
                 ready = installReady,
                 shells = shell.list,
                 selected_disks = getSelectedDisks(parsed_db),
+                selected_packages = selected_packages,
                 service_menu = service.menu,
                 users = db.getUsersAsList(parsed_db),
         })
         return { status=200, reason="ok", body=body }
+end
+
+function writePackages(request) --TODO make 'packages' 'pkgsets' naming more consistent
+        local req = json.decode(request.body)
+        db.update("packages", table.concat(req, " "))
+        return { status=200, reason="ok", body="TODO"}
 end
 
 function languagePage(request)
@@ -474,6 +492,7 @@ server:add_route("GET", "^/networkstatus$", getNetworkStatus)
 server:add_route("POST", "^/setkeymap$", setKeymap)
 server:add_route("POST", "^/network$", connectToNetwork)
 server:add_route("POST", "^/networkconfirm$", writeNetwork)
+server:add_route("POST", "^/pkgsets$", writePackages)
 
 --Pages
 server:add_route("GET", "^/language$", languagePage)

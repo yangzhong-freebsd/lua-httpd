@@ -7,6 +7,26 @@
 		<link rel="stylesheet" href="/style">
 	</head>
 	<body>
+		<script>
+			function writePkgsets() {
+				let pkgsets = document.getElementsByName("packages");
+				selected_sets = [...pkgsets].filter(set => set.checked).map(set => set.value);
+
+				fetch("/pkgsets", {
+					method : "POST",
+					body : JSON.stringify(selected_sets),
+				});
+			}
+
+			function startup() {
+				let pkgsets = document.getElementsByName("packages");
+				pkgsets.forEach(set => {
+					set.addEventListener("change", writePkgsets);
+				});
+
+			}
+			window.addEventListener("load", startup);
+		</script>
 		<div class="wrapper">
 			<div class="column is-narrow">
 
@@ -63,7 +83,7 @@
 					</div>
 				</div>
 				<div class="section-box section-box-nested">
-					<header class="sub-box">
+					<header class="sub-box" id="users">
 						<h2>{{lang["Users"][cur_lang]}}</h2>
 					</header>
 					{% if #users ~= 0 then %}
@@ -112,32 +132,15 @@
 						</header>
 
 						<div class="sub-box">
-						<p class="description">{{lang["Select the packages to be installed on your system."][cur_lang]}}</p>
-						<label class="grouped">
-							<input type="checkbox" value="kernel" name="packages" checked>
-								Kernel
-							</input>
-						</label>
-						<label class="grouped">
-							<input type="checkbox" value="base" name="packages" checked>
-								Base
-							</input>
-						</label>
-						<label class="grouped">
-							<input type="checkbox" value="debug" name="packages">
-								Debug
-							</input>
-						</label>
-						<label class="grouped">
-							<input type="checkbox" value="lib32" name="packages">
-								Lib32
-							</input>
-						</label>
-						<label class="grouped">
-							<input type="checkbox" value="development" name="packages">
-								Development
-							</input>
-						</label>
+							<p class="description">{{lang["Select the packages to be installed on your system."][cur_lang]}}</p>
+							{% for _, pkgset in ipairs(packages) do %}
+								<label class="grouped">
+									<input type="checkbox" value={{pkgset.name}} name="packages"
+									    {{checked(selected_packages[pkgset.name])}} {{disabled(pkgset.vital)}}>
+										{{pkgset.name_human}}
+									</input>
+								</label>
+							{% end %}
 						</div>
 					</div>
 
