@@ -89,11 +89,18 @@ function network.status()
 end
 
 function network.connectWireless(network, password)
-    os.execute("wpa_cli remove_network 0") --TODO refine
-    os.execute("wpa_cli add_network")
-    os.execute("echo 'set_network 0 ssid \""..network.."\"' | wpa_cli")
-    os.execute("echo 'set_network 0 psk \""..password.."\"' | wpa_cli")
-    os.execute("wpa_cli select_network 0")
+    --os.execute("wpa_cli remove_network 0") --TODO refine
+    local add_network_output = io.popen("wpa_cli add_network", "r")
+    local network_id = 0
+    for line in add_network_output:lines() do
+        local match = line:match("^%d+$")
+        if (match) then
+                network_id = match
+        end
+    end
+    os.execute("echo 'set_network "..network_id.." ssid \""..network.."\"' | wpa_cli")
+    os.execute("echo 'set_network "..network_id.." psk \""..password.."\"' | wpa_cli")
+    os.execute("wpa_cli select_network "..network_id)
     os.execute("wpa_cli reconnect")
 end
 
