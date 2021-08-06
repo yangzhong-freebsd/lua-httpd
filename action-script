@@ -1,0 +1,13 @@
+#!/bin/sh
+
+case "$2" in
+	CONNECTED)
+		echo "CONNECTED" > /tmp/lua-httpd;
+		;;
+	DISCONNECTED)
+		echo "DISCONNECTED" > /tmp/lua-httpd;
+		;;
+	CTRL-EVENT-SSID-TEMP-DISABLED)
+		echo "TEMP-DISABLED" > /tmp/lua-httpd;
+		;;
+esac

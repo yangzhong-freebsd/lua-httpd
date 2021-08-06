@@ -19,6 +19,8 @@ local function checkIPv4()
     network.ipv6 = output
 end
 
+network.temp_file = "/tmp/lua-httpd"
+
 function network.getInterfaces()
     local interfaces = {}
 
@@ -84,12 +86,36 @@ function network.scanWireless() -- (interface)
     return networks
 end
 
-function network.status()
-    return os.execute("wpa_cli status")
+function network.startDaemon()
+    os.execute("pkill wpa_cli") --TODO is this really okay???
+    if (network.action_file) then
+        network.action_file:close()
+    end
+    network.action_file = io.popen("wpa_cli -a /home/yang/lua-httpd/action-script -B > "..network.temp_file.." 2>&1", "r")
+end
+
+function network.status_from_command()
+    return io.popen("wpa_cli status"):read("a") --TODO these should probably be closed?
+end
+
+function network.status_from_file()
+        local the_file = io.open(network.temp_file)
+
+        -- This is either "CONNECTED\n", "DISCONNECTED\n", "TEMP-DISABLED\n", "\n".
+        local status = the_file:read("*all")
+        status = status:gsub("%s+", "")
+        the_file:close()
+
+        -- Clear the status file when we reach a 'final' state, so the next
+        -- connection attempt doesn't get confused.
+        if (status == "TEMP-DISABLED" or status == "CONNECTED") then
+                io.open(network.temp_file, "w"):close()
+        end
+
+        return status
 end
 
 function network.connectWireless(network, password)
-    --os.execute("wpa_cli remove_network 0") --TODO refine
     local add_network_output = io.popen("wpa_cli add_network", "r")
     local network_id = 0
     for line in add_network_output:lines() do

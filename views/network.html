@@ -25,6 +25,8 @@
 						wireless.hidden = false;
 						rescan_button.hidden = false;
 
+						wireless_select.innerHTML = "";
+
 						for (let i = 0; i < networks.length; ++i) {
 							let option = document.createElement("option");
 							option.innerHTML = networks[i].ssid;
@@ -53,17 +55,20 @@
 					if (connection_interval) {
 						clearInterval(connection_interval);
 					}
-					connection_interval = setInterval(getStatus, 1000);
+					connection_interval = setInterval(getStatus, 3000);
 				});
 			}
 
-			function getStatus () {
-				fetch("networkstatus").then(data => {
-					data.text().then(text => {
-						let matches = text.match("wpa_state=(.*)\n");
+			function getStatus() {
+				let password_status = document.getElementById("password_status");
 
-						if (matches && matches[1].match("COMPLETED")) {
+				fetch("/networkstatus").then(data => {
+					data.text().then(text => {
+						if (text === "CONNECTED") {
 							confirmNetwork();
+						} else if (text === "TEMP-DISABLED") {
+							clearConnectionAttempt();
+							password_status.innerHTML = "Incorrect password";
 						}
 					});
 				});
@@ -80,14 +85,13 @@
 						"network_interface" : network_interface,
 						"network" : network,
 						"password" : password}) 
-				}).then(() => window.location.replace("/"));
+				}).then(() => window.location.replace("/#network"));
 			}
 
-			function checkWireless (e) {
+			function checkWireless(intrface) {
 				let wireless_box = document.getElementById("wireless_box");
 
-				let val = e.target.value;
-				fetch("network/iswireless/" + val).then(data => {
+				fetch("network/iswireless/" + intrface).then(data => {
 					data.text().then(text => {
 						if (JSON.parse(text)) {
 							wireless_box.hidden = false;
@@ -101,14 +105,17 @@
 
 			function clearConnectionAttempt() {
 				let connect_button = document.getElementById("connect_button");
+				let password_status = document.getElementById("password_status");
+
 				if (connection_interval) {
 					clearInterval(connection_interval);	
 				}
 				connect_button.disabled = false;
 				connect_button.innerHTML = "Connect";
+				password_status.innerHTML = "";
 			}
 
-			function startup () {
+			function startup() {
 				let rescan_button = document.getElementById("rescan_button");
 				rescan_button.addEventListener("click", () => {
 					clearConnectionAttempt();
@@ -121,7 +128,7 @@
 				let interface_select = document.getElementById("network_interface");
 				interface_select.addEventListener("change", (e) => {
 					clearConnectionAttempt();
-					checkWireless(e);
+					checkWireless(e.target.value);
 				});
 
 				let wireless_select = document.getElementById("wireless_select");
@@ -129,6 +136,10 @@
 
 				let password = document.getElementById("password");
 				password.addEventListener("change", clearConnectionAttempt); 
+
+				if (interface_select.value) {
+					checkWireless(interface_select.value);
+				}
 			}
 
 			window.addEventListener("load", startup);
@@ -175,6 +186,7 @@
 							<span class="label">Password</span>
 							<input class="input" type="password" name="password" id="password" placeholder="password"></input>
 						</label>
+						<p class="description" id="password_status"></p>
 					</div>
 			</div>
 			<div class="section">
