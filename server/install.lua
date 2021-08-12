@@ -1,6 +1,5 @@
-#!/usr/libexec/flua
 
-local SRC_DIR = "/home/yang/src/lua-httpd/"
+local install = install or {}
 
 local db = require("db")
 
@@ -10,7 +9,7 @@ function make_write(line, file)
 	return "echo '"..line.."' >> "..file.."\n"
 end
 
-function main()
+function install.install()
 	local parsed_db = db.parse()
 
 	local users = db.getUsersAsList(parsed_db)
@@ -56,4 +55,8 @@ function main()
 
 end
 
-main()
+function install.dummy()
+	print("Would be doing install here")
+end
+
+return install

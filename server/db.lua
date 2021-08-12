@@ -19,8 +19,6 @@
 -- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-local SRC_DIR = "/home/yang/src/lua-httpd/"
-
 local db = {}
 
 local misc = require("misc")

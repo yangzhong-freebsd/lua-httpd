@@ -20,7 +20,9 @@
 -- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 -- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-local SRC_DIR = "/home/yang/src/lua-httpd/"
+SRC_DIR = "/home/yang/src/lua-httpd/"
+XAUTHORITY = "/home/yang/.Xauthority"
+
 local VIEWS_DIR = SRC_DIR .. "views/"
 
 package.path = SRC_DIR .. "server/?.lua;" .. SRC_DIR .. "?.lua;" .. package.path
@@ -33,6 +35,7 @@ local db = require("db")
 local disk = require("disk")
 local filesystem = require("filesystem")
 local hardening = require("hardening")
+local install = require("install")
 local keymap = require("keymap")
 local lang = require("lang")
 local network = require("network")
@@ -478,6 +481,7 @@ function doInstall(request)
         db.update("root_password", req.root_password)
 
         db.close()
+        install.dummy()
         --For testing, I don't run the actual install command. Check the 'liveuser' branch
 
         return { status=501, reason="Not implemented", body="TODO" }
