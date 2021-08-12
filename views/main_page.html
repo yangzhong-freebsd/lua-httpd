@@ -20,11 +20,12 @@
 
 			function writeHostname() {
 				let hostname = document.getElementById("hostname").value;
-
-				fetch("/hostname", {
-					method : "POST",
-					body : hostname,
-				});
+				if (hostname !== "") { // TODO add error message when it's empty
+					fetch("/hostname", {
+						method : "POST",
+						body : hostname,
+					});
+				}
 			}
 
 			function startup() {
@@ -50,7 +51,7 @@
 
 				<div class="section-box section-box-nested">
 					<header class="sub-box">
-						<h2>{{lang["Settings"][cur_lang]}}</h2>
+						<h2>1. {{lang["Settings"][cur_lang]}}</h2>
 					</header>
 
 					<div class="sub-box-table">
@@ -68,18 +69,28 @@
 				</div>
 				<div class="section-box section-box-nested">
 					<header class="sub-box" id="network">
-						<h2>{{lang["Network"][cur_lang]}}</h2>
+						<h2>2. {{lang["Network"][cur_lang]}}</h2>
 					</header>
 					<div class="sub-box">
+					{% if not network_string then %}
+						<p class="description">Set up a connection to the internet.</p>
+					{% end %}
 					<div>{{network_string}}</div> <!--TODO rename these 'strings' -->
-					<a class="button" href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+					{% if network_string then %}
+						<a class="button" href="/network">Reconfigure the network</a>
+					{% else %}
+						<a class="button primary" href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+					{% end %}
 					</div>
 				</div>
 				<div class="section-box section-box-nested">
 					<header class="sub-box">
-						<h2>{{lang["Filesystem"][cur_lang]}}</h2>
+						<h2>3. {{lang["Filesystem"][cur_lang]}}</h2>
 					</header>
 					<div class="sub-box">
+					{% if not next(selected_disks) then %} <!-- ie. if this table is empty -->
+						<p class="description">Choose the disks that FreeBSD should use.</p>
+					{% end %}
 					<div>
 					{% for dev, info in pairsByKeys(disks) do %}
 						{% if selected_disks[dev] then %}
@@ -90,12 +101,16 @@
 						{% end %}
 					{% end %}
 					</div>
-					<a class="button" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+					{% if next(selected_disks) then %}
+						<a class="button" href="/zfs">Reconfigure ZFS</a>
+					{% else %}
+						<a class="button primary" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+					{% end %}
 					</div>
 				</div>
 				<div class="section-box section-box-nested">
 					<header class="sub-box" id="users">
-						<h2>{{lang["Users"][cur_lang]}}</h2>
+						<h2>4. {{lang["Users"][cur_lang]}}</h2>
 					</header>
 					{% if #users ~= 0 then %}
 					<div class="sub-box-table">
@@ -131,13 +146,18 @@
 					</div>
 					{% end %}
 					<div class="sub-box">
-					<a href="/adduser" class="button">+ {{lang["Add user"][cur_lang]}}</a>
+						{% if #users == 0 then %}
+							<p class="description">You should add at least one user for everyday use.</p>
+							<a href="/adduser" class="button primary">+ {{lang["Add user"][cur_lang]}}</a>
+						{% else %}
+							<a href="/adduser" class="button">+ Add another user</a>
+						{% end %}
 					</div>
 				</div>
 
 				<div class="section-box section-box-nested">
 					<header class="sub-box">
-						<h2>{{lang["Packages"][cur_lang]}}</h2>
+						<h2>5. {{lang["Packages"][cur_lang]}}</h2>
 					</header>
 
 					<div class="sub-box">
@@ -159,19 +179,19 @@
 
 					<div class="section-box section-box-nested">
 						<header class="sub-box">
-							<h2>{{lang["System Settings"][cur_lang]}}</h2>
+							<h2>6. {{lang["System Settings"][cur_lang]}}</h2>
 						</header>
 
 						<div class="sub-box">
 							<label>
 								<span class="label">{{lang["Hostname"][cur_lang]}}</span>
-								<input class="input" type="text" name="hostname" id="hostname" value="{{hostname}}">
+								<input class="input" type="text" name="hostname" id="hostname" value="{{hostname}}" required autocomplete="off">
 							</label>
 						</div>
 						<div class="sub-box">
 							<label>
 								<span class="label">{{lang["Root password"][cur_lang]}}</span>
-								<input class="input" type="password" name="root_password"
+								<input class="input" type="password" name="root_password" required
 								placeholder="{{lang["enter password..."][cur_lang]}}">
 							</label>
 						</div>

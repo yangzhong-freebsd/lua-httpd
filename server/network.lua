@@ -91,7 +91,7 @@ function network.startDaemon()
     if (network.action_file) then
         network.action_file:close()
     end
-    network.action_file = io.popen("wpa_cli -a /home/yang/lua-httpd/action-script -B > "..network.temp_file.." 2>&1", "r")
+    network.action_file = io.popen("wpa_cli -a /home/yang/src/lua-httpd/action-script -B > "..network.temp_file.." 2>&1", "r")
 end
 
 function network.status_from_command()

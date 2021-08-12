@@ -178,12 +178,12 @@ lang.languages = {
                 keymap_variant = "",
         },
         fr = {
-                name = "Français",
+                name = "Français (INCOMPLETE -- FOR TESTING)",
                 keymap_layout = "fr",
                 keymap_variant = "",
         },
         jp = {
-                name = "日本語",
+                name = "日本語 (INCOMPLETE -- FOR TESTING)",
                 keymap_layout = "jp",
                 keymap_variant = "",
         },
