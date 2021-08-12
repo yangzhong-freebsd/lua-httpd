@@ -62,7 +62,7 @@
 						Select the disks to use for FreeBSD
 					</p>
 						{% for dev, info in pairsByKeys(disks) do %}
-						<label>
+						<label class="grouped">
 							<input type="checkbox" value="{{dev}}" name="disk" {{checked(selected_disks[dev])}}>
 								{{dev}}:
 								{{info["Disk descr."]}}
