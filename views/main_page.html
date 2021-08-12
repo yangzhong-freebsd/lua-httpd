@@ -45,7 +45,7 @@
 				<div class="section">
 				<header class="header">
 					<h1 class="title">{{lang["Install FreeBSD"][cur_lang]}}</h1>
-					<a class="link" href="/language">{{lang["Change language"][cur_lang]}}</a>
+					<a class="link" href="/language">🌍 {{lang["Change language"][cur_lang]}}</a>
 				</header>
 				</div>
 
@@ -87,21 +87,32 @@
 					<header class="sub-box">
 						<h2>3. {{lang["Filesystem"][cur_lang]}}</h2>
 					</header>
-					<div class="sub-box">
-					{% if not next(selected_disks) then %} <!-- ie. if this table is empty -->
-						<p class="description">Choose the disks that FreeBSD should use.</p>
-					{% end %}
-					<p>
-					{% for dev, info in pairsByKeys(disks) do %}
-						{% if selected_disks[dev] then %}
-								{{info["Disk descr."]}}
-								({{info["mediasize in bytes human"]}})<br>
+
+					<div class="sub-box-table">
+					<table>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Size</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for dev, info in pairsByKeys(disks) do %}
+							{% if selected_disks[dev] then %}
+								<tr>
+									<td>{{info["Disk descr."]}}</td>
+									<td>{{info["mediasize in bytes human"]}}</td>
+								</tr>
+							{% end %}
 						{% end %}
-					{% end %}
-					</p>
+						</tbody>
+					</table>
+					</div>
+					<div class="sub-box">
 					{% if next(selected_disks) then %}
 						<a class="button tertiary" href="/zfs">Reconfigure ZFS</a>
 					{% else %}
+						<p class="description">Choose the disks that FreeBSD should use.</p>
 						<a class="button" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
 					{% end %}
 					</div>

@@ -44,9 +44,6 @@ local shell = require("shell")
 local json = require("json")
 local misc = require("misc")
 
---local manifest = "/usr/local/share/freebsd/MANIFESTS/amd64-amd64-13.0-RELEASE"
-local manifest = SRC_DIR .. "MANIFEST"
-
 local stylesheet_file = assert(io.open(SRC_DIR .. "style.css", "r"))
 local stylesheet = stylesheet_file:read("*all")
 stylesheet_file:close()
