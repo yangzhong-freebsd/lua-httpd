@@ -113,6 +113,10 @@ textarea {
 	color: white;
 }
 
+.button.tertiary {
+	border-color: rgba(0, 0, 0, 0);
+}
+
 a {
 	color: #1e3799;
 	text-decoration: none;

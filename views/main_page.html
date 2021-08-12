@@ -77,9 +77,9 @@
 					{% end %}
 					<div>{{network_string}}</div> <!--TODO rename these 'strings' -->
 					{% if network_string then %}
-						<a class="button" href="/network">Reconfigure the network</a>
+						<a class="link" href="/network">Reconfigure the network</a>
 					{% else %}
-						<a class="button primary" href="/network">{{lang["Configure the network"][cur_lang]}}</a>
+						<a class="button" href="/network">{{lang["Configure the network"][cur_lang]}}</a>
 					{% end %}
 					</div>
 				</div>
@@ -91,20 +91,18 @@
 					{% if not next(selected_disks) then %} <!-- ie. if this table is empty -->
 						<p class="description">Choose the disks that FreeBSD should use.</p>
 					{% end %}
-					<div>
+					<p>
 					{% for dev, info in pairsByKeys(disks) do %}
 						{% if selected_disks[dev] then %}
-							<div>
 								{{info["Disk descr."]}}
-								({{info["mediasize in bytes human"]}})
-							</div>
+								({{info["mediasize in bytes human"]}})<br>
 						{% end %}
 					{% end %}
-					</div>
+					</p>
 					{% if next(selected_disks) then %}
-						<a class="button" href="/zfs">Reconfigure ZFS</a>
+						<a class="button tertiary" href="/zfs">Reconfigure ZFS</a>
 					{% else %}
-						<a class="button primary" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
+						<a class="button" href="/zfs">{{lang["Configure ZFS"][cur_lang]}}</a>
 					{% end %}
 					</div>
 				</div>
@@ -148,9 +146,9 @@
 					<div class="sub-box">
 						{% if #users == 0 then %}
 							<p class="description">You should add at least one user for everyday use.</p>
-							<a href="/adduser" class="button primary">+ {{lang["Add user"][cur_lang]}}</a>
+							<a href="/adduser" class="button">+ {{lang["Add user"][cur_lang]}}</a>
 						{% else %}
-							<a href="/adduser" class="button">+ Add another user</a>
+							<a href="/adduser" class="button tertiary">+ Add another user</a>
 						{% end %}
 					</div>
 				</div>
