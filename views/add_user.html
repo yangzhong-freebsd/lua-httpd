@@ -53,13 +53,13 @@
 						<label>
 							<span class="label">{{lang["Username"][cur_lang]}}</span>
 							<input class="input" type="text" id = "username" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
-							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$">
+							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$" autocomplete="off">
 						</label>
 
 						<label>
 							<span class="label">{{lang["Full name"][cur_lang]}}</span>
 							<input class="input" type="text" name="full_name"
-							    placeholder="real name" value="{{orEmpty(full_name)}}" required>
+							    placeholder="real name" value="{{orEmpty(full_name)}}" required autocomplete="off">
 						</label>
 				</div>
 
@@ -67,7 +67,7 @@
 						<label>
 							<span class="label">{{lang["Groups"][cur_lang]}}</span>
 							<input class="input" type="text" name="groups"
-							 placeholder="additional groups" value="{{orWheel(groups)}}">
+							 placeholder="additional groups" value="{{orWheel(groups)}}" autocomplete="off">
 						</label>
 
 						<label>
