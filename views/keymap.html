@@ -15,8 +15,7 @@
 				fetch("/setkeymap", {
 					method : 'POST',
 					body : JSON.stringify({"layout" : layout, "variant" : variant})
-				}).then(data => 
-					data.text().then(console.log));
+				}); //TODO this needs to be debounced
 			}
 
 			function showVariants (text) {
@@ -42,8 +41,6 @@
 			}
 
 			function startup () {
-				console.log("testing");
-
 				let layout_select = document.getElementById("keymap");
 				layout_select.addEventListener("change", getVariants); 
 
@@ -62,8 +59,6 @@
 				<h1 class="title">{{lang["Configure your keyboard"][cur_lang]}}</h1>
 			</header>
 
-
-				<form action="/writekeymap" method="POST">
 			<div class="section-box">
 						<label>
 							<span class="label">{{lang["Keyboard layout"][cur_lang]}}</span>
@@ -88,9 +83,8 @@
 					<textarea placeholder="test your keyboard here..." class="textarea" rows=10 cols=70></textarea>
 			</div>
 			<div class="section">
-							<button class="button primary" type="submit">{{lang["Confirm"][cur_lang]}}</button>
+				<a href="/" class="button primary" type="submit">Return</a>
 			</div>
-				</form>
 		</div>
 	</body>
 </html>

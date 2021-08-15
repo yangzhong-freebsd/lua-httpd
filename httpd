@@ -336,16 +336,10 @@ function setKeymap(request)
         local map = json.decode(request.body)
 
         keymap.setKeymap(map.layout, map.variant)
+        db.update("keymap_layout", map.layout)
+        db.update("keymap_variant", map.variant)
 
         return { status=200, reason="ok", body = map.layout}
-end
-
-function writeKeymap(request)
-        local req = parseRequest(request.body)
-        db.update("keymap_layout", req.keymap)
-        db.update("keymap_variant", req.variant)
-        
-        return { status=303, headers = {["Location"]="/"}, reason="ok", body = "TODO" }
 end
 
 function addUserPage(request)
@@ -542,6 +536,5 @@ server:add_route("POST", "^/setlanguage", setLanguage)
 server:add_route("POST", "^/install$", doInstall)
 server:add_route("POST", "^/adduser$", addUser)
 server:add_route("POST", "^/deleteuser/(.*)$", deleteUser)
-server:add_route("POST", "^/writekeymap$", writeKeymap)
 
 server:run(true)
