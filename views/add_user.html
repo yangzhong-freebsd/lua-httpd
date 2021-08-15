@@ -33,6 +33,12 @@
 
 				let username = document.getElementById("username");
 				username.addEventListener("input", checkUsername);
+
+				let submit_button = document.getElementById("submitbutton");
+				submit_button.disabled = true;
+				submit_button.addEventListener("click", () => {
+					document.getElementById("message").innerHTML = "";
+				}); 
 			}
 			window.addEventListener("load", startup);
 
@@ -47,13 +53,14 @@
 					<h1 class="title">{{lang["Add user"][cur_lang]}}</h1>
 				</header>
 
-				<form action="/adduser" method="POST">
+			<form action="/adduser" method="POST">
 			<div class="section-box-nested">
 				<div class="sub-box">
 						<label>
 							<span class="label">{{lang["Username"][cur_lang]}}</span>
 							<input class="input" type="text" id = "username" name="username" required value = "{{orEmpty(username)}}" {{readonly(editing)}}
 							    placeholder="username" pattern="^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$" autocomplete="off">
+							<p class="description">Usernames can only use the characters a-z, A-Z, 0-9, and '_'. Usernames cannot start with a number.</p>  
 						</label>
 
 						<label>
@@ -64,20 +71,35 @@
 				</div>
 
 				<div class="sub-box">
-						<label>
-							<span class="label">{{lang["Groups"][cur_lang]}}</span>
-							<input class="input" type="text" name="groups"
-							 placeholder="additional groups" value="{{orWheel(groups)}}" autocomplete="off">
-						</label>
 
 						<label>
-							<span class="label">{{lang["Shell"][cur_lang]}}</span>
-							<select name="shell">
-								{% for _, shell in ipairs(shells) do %}
-								<option value="{{shell}}" {{selected(shell == user_shell)}}>{{shell}}</option>
-								{% end %}
-							</select>
+							<input type="checkbox" value="operator" name="operator" {{checked(operator)}}>
+								Join the 'operator' group
+								<p class="description">Allows this user to power off and restart the computer.</p>
+							</input>
 						</label>
+						<label>
+							<input type="checkbox" value="wheel" name="wheel" {{checked(wheel)}}>
+								Join the 'wheel' group
+								<p class="description">Allows this user to switch to the 'root' superuser. Only do this for users that should have administrative powers.</p>
+							</input>
+						</label>
+
+						<div class="advanced-opts-box">
+							<span class="label">Other Groups</span>
+							<input class="input" type="text" name="groups"
+							 placeholder="additional groups" value="{{groups}}" autocomplete="off">
+							<p class="description">Join any other groups you would like. Separate groups with a space.</p> 
+
+							<label>
+								<span class="label">{{lang["Shell"][cur_lang]}}</span>
+								<select name="shell">
+									{% for _, shell in ipairs(shells) do %}
+									<option value="{{shell}}" {{selected(shell == user_shell)}}>{{shell}}</option>
+									{% end %}
+								</select>
+							</label>
+						</div>
 				</div>
 
 				<div class="sub-box">
@@ -98,11 +120,11 @@
 			<div class="section">
 				<div class="field">
 					<div class="control">
-						<input id="submitbutton" class="button primary" type="submit" value="Apply" disabled>
+						<input id="submitbutton" class="button primary" type="submit" value="Apply">
 					</div>
 				</div>
 			</div>
-				</form>
+			</form>
 		</div>
 	</body>
 </html>

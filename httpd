@@ -356,6 +356,7 @@ function addUserPage(request)
         {
                 cur_lang = cur_lang,
                 lang = lang.translations,
+                operator = true,
                 shells = shell.list,
         })
 
@@ -370,12 +371,29 @@ function editUserPage(request)
 
         local user_data = db.parse().users[username]
 
+        local groups = splitString(user_data.groups, " ")
+        local trimmed_groups = ""
+        local wheel = false
+        local operator = false
+
+        for _, group in ipairs(groups) do
+                if (group == "wheel") then
+                        wheel = true
+                elseif (group == "operator") then
+                        operator = true
+                else
+                        trimmed_groups = trimmed_groups..group.." "
+                end
+        end
+
         local body = template.process(add_user_page,
         {
                 cur_lang = cur_lang,
                 editing = true,
                 full_name = user_data.full_name,
-                groups = user_data.groups,
+                groups = trimmed_groups,
+                wheel = wheel,
+                operator = operator,
                 lang = lang.translations,
                 shells = shell.list,
                 username = username,
@@ -390,9 +408,17 @@ function addUser(request)
 
         --TODO verify input
 
+        local groups = req.groups;
+        if (req.wheel) then
+                groups = groups.." wheel"
+        end
+        if (req.operator) then
+                groups = groups.." operator"
+        end
+
         db.update("user:"..req.username..":full_name", req.full_name)
         db.update("user:"..req.username..":password", req.password)
-        db.update("user:"..req.username..":groups", req.groups)
+        db.update("user:"..req.username..":groups", groups)
         db.update("user:"..req.username..":shell", req.shell)
 
         return { status=303, headers = {["Location"]="/#users"}, reason="ok", body = "TODO" }

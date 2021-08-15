@@ -194,7 +194,9 @@
 						<div class="sub-box">
 							<label>
 								<span class="label">{{lang["Hostname"][cur_lang]}}</span>
+								<!-- TODO validate input -->
 								<input class="input" type="text" name="hostname" id="hostname" value="{{hostname}}" required autocomplete="off">
+								<p class="description">This will be the name of this computer.</p>
 							</label>
 						</div>
 						<div class="sub-box">
@@ -202,6 +204,7 @@
 								<span class="label">{{lang["Root password"][cur_lang]}}</span>
 								<input class="input" type="password" name="root_password" required
 								placeholder="{{lang["enter password..."][cur_lang]}}">
+								<p class="description">This will be the password of the 'root' superuser. [add more description, maybe]</p>
 							</label>
 						</div>
 					</div>

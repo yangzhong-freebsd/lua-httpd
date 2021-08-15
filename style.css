@@ -170,6 +170,11 @@ a {
 	padding: 1rem;
 }
 
+.advanced-opts-box {
+	background: #eeeeee;
+	padding: 1rem;
+}
+
 .sub-box,
 .sub-box-table {
 	border-bottom: 1px solid #bbb;
