@@ -55,8 +55,4 @@ function install.install()
 
 end
 
-function install.dummy()
-	print("Would be doing install here")
-end
-
 return install

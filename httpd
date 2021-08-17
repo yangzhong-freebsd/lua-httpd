@@ -500,9 +500,10 @@ function doInstall(request)
         end
         db.update("root_password", req.root_password)
 
-        db.close()
-        install.dummy()
         --For testing, I don't run the actual install command. Check the 'liveuser' branch
+        --install.install()
+        --os.execute("cd "..SRC_DIR.." && sleep 1 && ./bsdinstall-scripted installscript")
+        db.close()
 
         return { status=501, reason="Not implemented", body="TODO" }
 end
