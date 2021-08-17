@@ -88,6 +88,7 @@
 						<h2>3. {{lang["Filesystem"][cur_lang]}}</h2>
 					</header>
 
+					{% if next(selected_disks) then %}
 					<div class="sub-box-table">
 					<table>
 						<thead>
@@ -108,6 +109,8 @@
 						</tbody>
 					</table>
 					</div>
+					{% end %}
+
 					<div class="sub-box">
 					{% if next(selected_disks) then %}
 						<a class="button tertiary" href="/zfs">Reconfigure ZFS</a>
