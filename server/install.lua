@@ -3,8 +3,6 @@ local install = install or {}
 
 local db = require("db")
 
-local outfile = assert(io.open(SRC_DIR.."installscript", "w"))
-
 function make_write(line, file)
 	return "echo '"..line.."' >> "..file.."\n"
 end
@@ -12,6 +10,7 @@ end
 function install.install()
 	local parsed_db = db.parse()
 
+	local outfile = assert(io.open(SRC_DIR.."installscript", "w"))
 	local users = db.getUsersAsList(parsed_db)
 
 	outfile:write("PACKAGES=\"kernel base\"\n")
@@ -53,6 +52,7 @@ function install.install()
 	outfile:write(make_write("search "..parsed_db.resolv_search, "/etc/resolv.conf"))
 	outfile:write(make_write("nameserver "..parsed_db.resolv_nameserver, "/etc/resolv.conf"))
 
+	outfile:close()
 end
 
 return install
