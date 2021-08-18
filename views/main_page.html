@@ -8,6 +8,17 @@
 	</head>
 	<body>
 		<script>
+			let timer;
+			function throttleWritePkgsets() {
+				if (timer) {
+					return;
+				}
+
+				timer = setTimeout(() => {
+					writePkgsets();
+					timer = undefined;
+				}, 1000);
+			}
 			function writePkgsets() {
 				let pkgsets = document.getElementsByName("packages");
 				selected_sets = [...pkgsets].filter(set => set.checked).map(set => set.value);
@@ -31,7 +42,7 @@
 			function startup() {
 				let pkgsets = document.getElementsByName("packages");
 				pkgsets.forEach(set => {
-					set.addEventListener("change", writePkgsets);
+					set.addEventListener("change", throttleWritePkgsets);
 				});
 
 				let hostname_box = document.getElementById("hostname");
