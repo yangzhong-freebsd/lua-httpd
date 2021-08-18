@@ -9,10 +9,10 @@
 	<body>
 		<script>
 			let timer;
-			function debounce (func) {
-				clearTimeout(timer);
+			function debounceGetVariants () {
 
-				timer = setTimeout(func, 1000);
+				clearTimeout(timer);
+				timer = setTimeout(getVariants, 500);
 			}
 
 			function setLayout () {
@@ -21,7 +21,7 @@
 				fetch("/setkeymap", {
 					method : 'POST',
 					body : JSON.stringify({"layout" : layout, "variant" : variant})
-				}); //TODO this needs to be debounced
+				});
 			}
 
 			function showVariants (text) {
@@ -48,10 +48,10 @@
 
 			function startup () {
 				let layout_select = document.getElementById("keymap");
-				layout_select.addEventListener("change", () => debounce(getVariants));
+				layout_select.addEventListener("input", debounceGetVariants);
 
 				let variant_select = document.getElementById("variant");
-				variant_select.addEventListener("change", () => debounce(setLayout));
+				variant_select.addEventListener("blur", setLayout);
 			}
 			window.addEventListener("load", startup);
 
