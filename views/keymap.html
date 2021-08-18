@@ -8,6 +8,12 @@
 	</head>
 	<body>
 		<script>
+			let timer;
+			function debounce (func) {
+				clearTimeout(timer);
+
+				timer = setTimeout(func, 1000);
+			}
 
 			function setLayout () {
 				let layout = document.getElementById("keymap").value;
@@ -34,18 +40,18 @@
 				setLayout();
 			}
 
-			function getVariants (e) {
-				let layout = e.target.value;
+			function getVariants () {
+				let layout = document.getElementById("keymap").value;
 				fetch("/keymap/variants/" + layout).then(data =>
 					data.text().then(showVariants)); 
 			}
 
 			function startup () {
 				let layout_select = document.getElementById("keymap");
-				layout_select.addEventListener("change", getVariants); 
+				layout_select.addEventListener("change", () => debounce(getVariants));
 
 				let variant_select = document.getElementById("variant");
-				variant_select.addEventListener("change", setLayout); 
+				variant_select.addEventListener("change", () => debounce(setLayout));
 			}
 			window.addEventListener("load", startup);
 
