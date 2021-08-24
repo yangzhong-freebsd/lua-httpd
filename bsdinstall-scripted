@@ -200,11 +200,11 @@ if [ -f $TMPDIR/bsdinstall-installscript-ab ]; then
 fi
 
 bsdinstall entropy
-if [ "$ZFSBOOT_DISKS" ]; then
-	zpool export $ZFSBOOT_POOL_NAME
-else
-	bsdinstall umount
-fi
+#if [ "$ZFSBOOT_DISKS" ]; then
+#	zpool export $ZFSBOOT_POOL_NAME
+#else
+#	bsdinstall umount
+#fi
 
 f_dprintf "Installation Completed at %s" "$( date )"
 
